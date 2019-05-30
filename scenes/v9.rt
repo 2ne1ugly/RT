@@ -1,0 +1,5 @@
+ambient_light = vec3(.6);
+Union (
+	Translate(vec3(1.), Sphere(red, vec3(0.), 1.))
+	,Null());
+Light(white, vec3(4.2,0.,4.2));

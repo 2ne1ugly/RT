@@ -1,0 +1,4 @@
+Union (
+	Cylinder(green, vec3(0.), vec3(0.,-24.24,0.), vec3(0.,42.42,.0), .1)
+	,Null());
+Light(white, vec3(4.2,0.,4.2));
