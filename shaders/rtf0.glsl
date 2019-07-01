@@ -404,6 +404,7 @@ vec4 render()
 	}
 
 	//monte carlo integration for global illumination. only skybox for now.
+	//replace texture(skybox, l).rgb to actual color calculation.
 	//possibly replace randomness to hammersley
 	#ifdef PBR
 	//specular term
