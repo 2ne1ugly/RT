@@ -1,7 +1,7 @@
 #version 410
 
 #define SCENE \ 
-Union ( 	Plane(white, vec3(0.,0.,0.), vec4(0.,1.,0.,0.)) 	,Plane(blue, vec3(0.,0.,0.), vec4(0.,0.,1.,0.))); Union ( 	Sphere(red, vec3(0.,1.,4.), 1.) 	,Null()); Union ( 	Quad(grey, vec3(0.,4.,0.), 	vec3(-42.,4.,-42.) 	,vec3(42.,4.,-42.) 	,vec3(42.,4.,42.) 	,vec3(-42.,4.,42.)) 	,Null()); Union ( 	Sphere(grey, vec3(4.,8.,0.), 1.) 	,Sphere(grey, vec3(-4.,8.,0.), 1.)); Union ( 	Sphere(grey, vec3(4.,8.,8.), 1.) 	,Sphere(grey, vec3(-4.,8.,8.), 1.)); Union ( 	Sphere(grey, vec3(4.,0.,0.), 1.) 	,Cylinder(grey, vec3(4.,0.,0.), vec3(0.,-24.24,0.), vec3(0.,42.42,.0), .5)); Union ( 	Sphere(grey, vec3(-4.,0.,0.), 1.) 	,Cylinder(grey, vec3(-4.,0.,0.), vec3(0.,-24.24,0.), vec3(0.,42.42,.0), .5)); Union ( 	Sphere(grey, vec3(-4.,0.,8.), 1.) 	,Cylinder(grey, vec3(-4.,0.,8.), vec3(0.,-24.24,0.), vec3(0.,42.42,.0), .5)); Union ( 	Sphere(grey, vec3(4.,0.,8.), 1.) 	,Cylinder(grey, vec3(4.,0.,8.), vec3(0.,-24.24,0.), vec3(0.,42.42,.0), .5)); Light(white, vec3(16.2,1.,16.2)); Light(white, vec3(-16.2,1.,16.2)); 
+Union ( 	Sphere(red, vec3(0.), 1.) 	,Null()); Light(white, vec3(4.2,5.,4.2)); 
 //#version 410
 
 #define PBR
@@ -97,8 +97,8 @@ const float EPSMOD = 0.0105;
 const int MAX_AO = 4;
 const float MAX_SS = 2.;
 const float MAX_SSK = 16.;
-const float METALLIC = 1.0;
-float ROUGHNESS = 0.0;
+const float METALLIC = 0.0;
+float ROUGHNESS = 0;
 const float MINIMUM_ROUGHNESS = 0.03;
 const float MAXIMUM_ROUGHNESS = 0.97;
 const float PI = 3.14159265359;
@@ -371,7 +371,7 @@ vec4 render()
 	vec3 r = normalize(-reflect(v,n));
 	float dotrv = dot(r, v);
 	vec3 diffuseColor = kd * (1.0 - METALLIC);
-	vec3 specularColor = vec3(0.7, 0.3, 0.3);
+	vec3 specularColor = vec3(0.05);
 	#ifdef PBR
 	float dotnv = dot(n, v);
 	ROUGHNESS = clamp(ROUGHNESS, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);

@@ -93,8 +93,8 @@ const float EPSMOD = 0.0105;
 const int MAX_AO = 4;
 const float MAX_SS = 2.;
 const float MAX_SSK = 16.;
-const float METALLIC = 1.0;
-float ROUGHNESS = 0.0;
+const float METALLIC = 0.0;
+float ROUGHNESS = 0;
 const float MINIMUM_ROUGHNESS = 0.03;
 const float MAXIMUM_ROUGHNESS = 0.97;
 const float PI = 3.14159265359;
@@ -367,7 +367,7 @@ vec4 render()
 	vec3 r = normalize(-reflect(v,n));
 	float dotrv = dot(r, v);
 	vec3 diffuseColor = kd * (1.0 - METALLIC);
-	vec3 specularColor = vec3(0.7, 0.3, 0.3);
+	vec3 specularColor = vec3(0.05);
 	#ifdef PBR
 	float dotnv = dot(n, v);
 	ROUGHNESS = clamp(ROUGHNESS, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
