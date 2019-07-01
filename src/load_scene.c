@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   load_scene.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arherrer <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/22 21:07:26 by arherrer          #+#    #+#             */
-/*   Updated: 2019/05/24 21:22:20 by arherrer         ###   ########.fr       */
+/*   Updated: 2019/06/02 23:13:24 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/rt.h"
 
-static char	*read_file(char *buf, int siz, const char *path)
+char		*read_file(char *buf, int siz, const char *path)
 {
 	int	cnt;
 	int	fd;
@@ -52,6 +52,8 @@ static char	*concat(char *buf, char *const src[5])
 	return (buf);
 }
 
+#include <stdio.h>
+
 void		load_scene(t_rt *rt, const char *path)
 {
 	GLint				loglen;
@@ -71,5 +73,10 @@ void		load_scene(t_rt *rt, const char *path)
 	glGetShaderiv(rt->gldata.fs0_id, GL_COMPILE_STATUS, (GLint[]){0});
 	glGetShaderiv(rt->gldata.fs0_id, GL_INFO_LOG_LENGTH, &loglen);
 	if (loglen > 0)
+	{
+		char str[10000];
+		glGetShaderInfoLog(rt->gldata.fs0_id, 10000, &loglen, str);
+		printf("%s\n", str);
 		panic("scene was corrupt");
+	}
 }

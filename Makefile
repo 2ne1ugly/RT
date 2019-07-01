@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: arherrer <marvin@42.fr>                    +#+  +:+       +#+         #
+#    By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/04/29 15:17:56 by arherrer          #+#    #+#              #
-#    Updated: 2019/05/30 14:52:26 by arherrer         ###   ########.fr        #
+#    Updated: 2019/06/26 23:24:52 by mchi             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ LIBS := \
 	-L ./lib/glew-2.1.0/lib/ ./lib/glew-2.1.0/lib/libGLEW.a \
 	-L ./libft/ -lft
 name := RT
-src := $(addprefix ./src/, callback.c init.c load_glsl.c load_scene.c loop.c main.c make_window.c)
+src := $(addprefix ./src/, callback.c init.c load_glsl.c load_scene.c loop.c main.c make_window.c load_skybox.c post_process.c load_noise.c)
 obj := $(src:.c=.o)
 
 .PHONY: all clean fclean re

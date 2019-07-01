@@ -1,16 +1,26 @@
 //#version 410
 
+#define PBR
+
+/**********************************************************************
+** @macros
+**********************************************************************/
+
+#define saturate(x)        clamp(x, 0.0, 1.0)
+
 /**********************************************************************
 ** @uniforms
 **********************************************************************/
 
 uniform vec3 ray_origin;
-uniform vec2 resolution;
 
 uniform vec2 rot;
 uniform vec2 time;
 uniform vec4 mouse;
+uniform float aspect;
 
+uniform samplerCube skybox;
+uniform sampler2D noise;
 /**********************************************************************
 ** scene's public data
 **********************************************************************/
@@ -74,7 +84,7 @@ out vec4 out_color;
 ** @constants
 **********************************************************************/
 
-const float FOV = 45.0;
+const float FOV = 90.0;
 const float MIN_DISTANCE = 1.;
 const float MAX_DISTANCE = 256.;
 const int MAX_STEPS = 256;
@@ -83,6 +93,11 @@ const float EPSMOD = 0.0105;
 const int MAX_AO = 4;
 const float MAX_SS = 2.;
 const float MAX_SSK = 16.;
+const float METALLIC = 1.0;
+float ROUGHNESS = 0.0;
+const float MINIMUM_ROUGHNESS = 0.03;
+const float MAXIMUM_ROUGHNESS = 0.97;
+const float PI = 3.14159265359;
 
 /**********************************************************************
 ** @main's prototypes
@@ -292,6 +307,26 @@ float udf_triangle(vec3 p, vec3 a, vec3 b, vec3 c);  // 12
 float udf_quad(vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
 
 /**********************************************************************
+** PBR formulas
+**********************************************************************/
+
+float V_SmithGGXCorrelated(float roughness, float NoV, float NoL);
+vec3 F_Fresnel( vec3 SpecularColor, float VoH);
+float D_GGX(float roughness, float NoH, const vec3 h);
+float D_Beckmann( float roughness, float NoH );
+vec3 Diffuse_OrenNayar( vec3 DiffuseColor, float Roughness, float NoV, float NoL, float VoH );
+vec3 EnvBRDFApprox(vec3 SpecularColor, float Roughness, float NoV );
+
+/**********************************************************************
+** Sampling formulas
+**********************************************************************/
+
+vec3 randomSpherePoint(vec2 rand);
+vec3 randomHemispherePoint(vec2 rand, vec3 n);
+vec3 randomCosineWeightedHemispherePoint(vec3 rand, vec3 n);
+vec3 ImportanceSampleGGX(vec2 Xi, float Roughness, vec3 N );
+vec4 CosineSampleHemisphere( vec2 E, vec3 N );
+/**********************************************************************
 ** definitions
 **********************************************************************/
 
@@ -302,15 +337,14 @@ mat2 rd_rotate(float angle)
 	return mat2(c, -s, s, c);
 }
 
+in vec2 vertexPassThrough;
+
 vec4 render()
 {
 	// Initialize ray.
 	vec3 ro = ray_origin;
-	vec3 q = vec3(0.);
-	q.xy = gl_FragCoord.xy - (resolution.xy / 2.);
-	q.z = -(resolution.y / tan(radians(FOV) / 2.));
-	vec3 rd = normalize(q);
-
+	vec2 q = vec2(vertexPassThrough.x * aspect, vertexPassThrough.y);
+	vec3 rd = normalize(vec3(q * sin(FOV / 2), -1.0));
 	// Make rd follow rot
 	ro.xz *= rd_rotate(rot.x);
 	rd.xz *= rd_rotate(rot.x);
@@ -320,15 +354,26 @@ vec4 render()
 	float d = intersect(ro, rd);
 	if (d >= MAX_DISTANCE) {
 		// TODO: implement a good background
-		return vec4(0.);
+		//return vec4(0.);
 		//return vec4(sin(time.x) / 4., cos(time.x) / 4., atan(time.x) / 4., 1.);
+		return texture(skybox, rd);
 	}
 	vec3 p = ro + (rd * d);
-	vec3 n = get_normal(p);
 	vec3 kd = scene_kd(p) * ambient_light;
-	
+
+	//common values
+	vec3 v = -rd;
+	vec3 n = get_normal(p);
+	vec3 r = normalize(-reflect(v,n));
+	float dotrv = dot(r, v);
+	vec3 diffuseColor = kd * (1.0 - METALLIC);
+	vec3 specularColor = vec3(0.7, 0.3, 0.3);
+	#ifdef PBR
+	float dotnv = dot(n, v);
+	ROUGHNESS = clamp(ROUGHNESS, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
+	#endif
+
 	// Go through local lights
-	float diff = 0.;
 	vec3 spec = vec3(0.);
 	float shadows = 0.;
 	for (int i = 0; i < MAX_LIGHTS; ++i) {
@@ -337,29 +382,76 @@ vec4 render()
 		}
 		Light_ light = lights[i];
 		vec3 l = normalize(light.p - p);
-		vec3 v = normalize(ro - p);
-		vec3 r = normalize(reflect(-l,n));
 		float dotln = dot(l, n);
-		float dotrv = dot(r, v);
+		float dotrl = dot(r, l);
+		#ifdef PBR
+		vec3 h = normalize(v + l);
+		float dotvl = dot(l, v);
+		float dotnh = dot(n, h);
+		float dotvh = dot(v, h);
+		#endif
 		shadows += soft_shadows(p, normalize(light.p));
-		if (dotln < 0.) {  // no light
-			;
-		} else if (dotrv < 0.0) {  // opposite
-			spec += light.k * (kd * dotln);
-		} else {
-			spec += light.k * (kd * dotln + pow(dotrv, 42.));
-		}
+		#ifdef PBR
+		vec3 brdfSpec = D_GGX(ROUGHNESS, dotnh, h) * V_SmithGGXCorrelated(ROUGHNESS, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
+		vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, ROUGHNESS, dotnv, dotln, dotvh);
+		vec3 brdf = brdfDiff + brdfSpec;
+		vec3 OutThroughput = brdf * light.k * saturate(dotln);
+		spec += OutThroughput;
+		#else
+		spec += max(dotln, 0) * light.k * kd;		//diffuse
+		spec += pow(max(dotrl, 0), 42.) * light.k;	//specular
+		#endif
 	}
-//	spec = spec * .5;
-	diff = clamp(diff, .0, 1.);  // keep from looking cartoon-y
+
+	//monte carlo integration for global illumination. only skybox for now.
+	//possibly replace randomness to hammersley
+	#ifdef PBR
+	//specular term
+	{
+		const int nSample = 64;
+		vec3 sampled = vec3(0);
+		vec4 samplePoint = texture(noise, vertexPassThrough);
+		for (int i = 0; i < nSample; i++) {
+			vec3 h = ImportanceSampleGGX(samplePoint.xy, ROUGHNESS, n);
+			vec3 l = 2 * dot(v, h) * h - v;
+			float dotln = dot(l, n);
+			float dotvh = dot(v, h);
+			vec3 brdfSpec = V_SmithGGXCorrelated(ROUGHNESS, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
+			sampled += brdfSpec * texture(skybox, l).rgb * saturate(dotln);
+			samplePoint = texture(noise, samplePoint.zw);
+		}
+		spec += sampled / nSample;
+	}
+
+	//diffuse term
+	{
+		const int nSample = 64;
+		vec3 sampled = vec3(0);
+		vec4 samplePoint = texture(noise, vertexPassThrough);
+		for (int i = 0; i < nSample; i++) {
+			//do we have to divide with total pdf?
+			vec3 l = CosineSampleHemisphere(samplePoint.xy, n).xyz;
+			float dotln = dot(l, n);
+			vec3 h = normalize(v + l);
+			float dotvh = dot(v, h);
+			vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, ROUGHNESS, dotnv, dotln, dotvh);
+			sampled += brdfDiff * texture(skybox, l).rgb * saturate(dotln);
+			samplePoint = texture(noise, samplePoint.zw);
+		}
+		spec += sampled / nSample;
+	}
+	#endif
+
 	shadows = .5 + .5 * shadows;
 	
 	float ao = ambient_occlusion(p, n);
 	vec3 color; 
 	
 	// Light accumulation
-	color += (spec * ao * shadows);
-	//color += (kd * ao * shadows) + spec;
+	color = spec;
+//	color = spec * ao;
+//	color = (kd * ao) + spec;
+//	color = (kd * ao * shadows) + spec;
 	
 	// TODO: make flag
 	// fog
@@ -559,9 +651,102 @@ float udf_quad(vec3 p, vec3 a, vec3 b, vec3 c, vec3 d)
 		 + sign(dot(cross(dc,n),pc))
 		 + sign(dot(cross(ad,n),pd)) < 3.)
 		? min(min(min(
-					dot2(ba * clamp(dot(ba, pa) / dot2(ba), 0., 1.) - pa),
-					dot2(cb * clamp(dot(cb, pb) / dot2(cb), 0., 1.) - pb)),
-				dot2(dc * clamp(dot(dc, pc) / dot2(dc), 0., 1.) - pc)),
-			dot2(ad * clamp(dot(ad,pd) / dot2(ad), 0., 1.) - pd))
+					dot2(ba * saturate(dot(ba, pa) / dot2(ba)) - pa),
+					dot2(cb * saturate(dot(cb, pb) / dot2(cb)) - pb)),
+				dot2(dc * saturate(dot(dc, pc) / dot2(dc)) - pc)),
+			dot2(ad * saturate(dot(ad,pd) / dot2(ad)) - pd))
 		: dot(n, pa) * dot(n, pa) / dot2(n));
 }
+
+#ifdef PBR
+
+float D_GGX(float roughness, float NoH, const vec3 h) {
+    float oneMinusNoHSquared = 1.0 - NoH * NoH;
+    float a = NoH * roughness;
+    float k = roughness / (oneMinusNoHSquared + a * a);
+    float d = k * k * (1.0 / PI);
+    return d;
+}
+
+float D_Beckmann( float roughness, float NoH )
+{
+    float a2 = roughness * roughness;
+	float NoH2 = NoH * NoH;
+	return exp( (NoH2 - 1) / (a2 * NoH2) ) / ( PI * a2 * NoH2 * NoH2 );
+}
+
+float V_SmithGGXCorrelated(float roughness, float NoV, float NoL) {
+    float a2 = roughness * roughness;
+    float lambdaV = NoL * sqrt((NoV - a2 * NoV) * NoV + a2);
+    float lambdaL = NoV * sqrt((NoL - a2 * NoL) * NoL + a2);
+    float v = 0.5 / (lambdaV + lambdaL);
+    return v;
+}
+
+vec3 F_Fresnel( vec3 SpecularColor, float VoH )
+{
+	vec3 SpecularColorSqrt = sqrt( clamp( vec3(0, 0, 0), vec3(0.99, 0.99, 0.99), SpecularColor ) );
+	vec3 n = ( 1 + SpecularColorSqrt ) / ( 1 - SpecularColorSqrt );
+	vec3 g = sqrt( n*n + VoH*VoH - 1 );
+	vec3 v1 = (g - VoH) / (g + VoH);
+	vec3 v2 = ((g+VoH)*VoH - 1) / ((g-VoH)*VoH + 1);
+	return 0.5 * v1 * v1 * ( 1 + v2 * v2);
+}
+
+vec3 Diffuse_OrenNayar( vec3 DiffuseColor, float Roughness, float NoV, float NoL, float VoH )
+{
+	float a = Roughness * Roughness;
+	float s = a;// / ( 1.29 + 0.5 * a );
+	float s2 = s * s;
+	float VoL = 2 * VoH * VoH - 1;		// double angle identity
+	float Cosri = VoL - NoV * NoL;
+	float C1 = 1 - 0.5 * s2 / (s2 + 0.33);
+	float C2 = 0.45 * s2 / (s2 + 0.09) * Cosri * ( Cosri >= 0 ? (1/ max( NoL, NoV ) ) : 1 );
+	return DiffuseColor / PI * ( C1 + C2 ) * ( 1 + Roughness * 0.5 );
+}
+
+vec3 ImportanceSampleGGX(vec2 Xi, float Roughness, vec3 N )
+{
+	float a = Roughness * Roughness;
+	float Phi = 2 * PI * Xi.x;
+	float CosTheta = sqrt( (1 - Xi.y) / ( 1 + (a*a - 1) * Xi.y ) );
+	float SinTheta = sqrt( 1 - CosTheta * CosTheta );
+	vec3 H;
+	H.x = SinTheta * cos( Phi );
+	H.y = SinTheta * sin( Phi );
+	H.z = CosTheta;
+	vec3 UpVector = abs(N.z) < 0.999 ? vec3(0,0,1) : vec3(1,0,0);
+	vec3 TangentX = normalize( cross( UpVector, N ) );
+	vec3 TangentY = cross( N, TangentX );
+	// Tangent to world space
+	return TangentX * H.x + TangentY * H.y + N * H.z;
+}
+
+vec4 UniformSampleSphere( vec2 E )
+{
+	float Phi = 2 * PI * E.x;
+	float CosTheta = 1 - 2 * E.y;
+	float SinTheta = sqrt( 1 - CosTheta * CosTheta );
+
+	vec3 H;
+	H.x = SinTheta * cos( Phi );
+	H.y = SinTheta * sin( Phi );
+	H.z = CosTheta;
+
+	float PDF = 1.0 / (4 * PI);
+
+	return vec4( H, PDF );
+}
+
+vec4 CosineSampleHemisphere( vec2 E, vec3 N ) 
+{
+	vec3 H = UniformSampleSphere( E ).xyz;
+	H = normalize( N + H );
+
+	float PDF = H.z * (1.0 /  PI);
+
+	return vec4( H, PDF );
+}
+
+
+#endif

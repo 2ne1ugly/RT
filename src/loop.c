@@ -3,21 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   loop.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arherrer <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:13:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/05/24 21:20:13 by arherrer         ###   ########.fr       */
+/*   Updated: 2019/06/26 23:57:58 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/rt.h"
 
-static void	update(t_rt *rt)
+static void	uniform_update(t_rt *rt)
 {
 	glUniform3f(rt->gldata.ray_origin_id, rt->uniforms.ray_origin.x,
 		rt->uniforms.ray_origin.y, rt->uniforms.ray_origin.z);
-	glUniform2f(rt->gldata.resolution_id, rt->uniforms.resolution.x,
-		rt->uniforms.resolution.y);
+	glUniform1f(rt->gldata.aspect_id, rt->uniforms.aspect);
 	rt->uniforms.time.y = rt->uniforms.time.x;
 	rt->uniforms.time.x = glfwGetTime();
 	rt->uniforms.delta_time = rt->uniforms.time.x - rt->uniforms.time.y;
@@ -27,15 +26,28 @@ static void	update(t_rt *rt)
 	glUniform2f(rt->gldata.rot_id, rt->uniforms.rot.x, rt->uniforms.rot.y);
 }
 
-static void	render(const t_gldata *const gldata)
+static void	render(t_rt *rt)
 {
+	glUseProgram(rt->gldata.program_id);
+	uniform_update(rt);
+//	glBindFramebuffer(GL_FRAMEBUFFER, rt->gldata.framebuffer_id);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, gldata->vertex_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, rt->gldata.vertex_buffer);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDisableVertexAttribArray(0);
-	glfwSwapBuffers(gldata->window);
+}
+
+void		post_render(t_rt *rt)
+{
+	glUseProgram(rt->gldata.pp_program_id);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, rt->gldata.vertex_buffer);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDisableVertexAttribArray(0);
 }
 
 void		loop(t_rt *rt)
@@ -46,8 +58,9 @@ void		loop(t_rt *rt)
 		glfwPollEvents();
 		if (rt->uniforms.entered)
 		{
-			update(rt);
-			render(&rt->gldata);
+			render(rt);
+			//post_render(rt);
+			glfwSwapBuffers(rt->gldata.window);
 		}
 	}
 }

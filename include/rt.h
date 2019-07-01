@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rt.h                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arherrer <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/15 15:14:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/05/25 20:35:27 by arherrer         ###   ########.fr       */
+/*   Updated: 2019/06/26 23:24:29 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,21 +46,30 @@
 
 # define RT_VS "./shaders/rtv.glsl"
 # define RT_FS0 "./shaders/rtf0.glsl"
+# define RT_POST_FS "./shaders/postf.glsl"
 
 typedef struct	s_gldata
 {
 	GLFWwindow	*window;
 	GLuint		vertex_array_id;
 	GLuint		vertex_buffer;
-	GLint		vs_id;
-	GLint		fs0_id;
-	GLint		program_id;
+	GLuint		vs_id;
+	GLuint		fs0_id;
+	GLuint		program_id;
 	GLint		ray_origin_id;
 	GLint		rot_id;
-	GLint		resolution_id;
+	GLint		aspect_id;
 	GLint		time_id;
 	GLint		mouse_id;
+	GLint		skybox_id;
+	GLint		render_sampler;
+	GLint		noise_sampler;
 	bool		fs0;
+	GLuint		framebuffer_id;
+	GLuint		target_texture;
+	GLuint		pp_fs_id;
+	GLuint		pp_program_id;
+
 }				t_gldata;
 
 typedef struct	s_vec2
@@ -92,6 +101,18 @@ typedef struct	s_material
 	t_vec4		emission;
 }				t_material;
 
+typedef struct	s_tga
+{
+	unsigned char	type_code;
+	short			width;
+	short			height;
+	unsigned char	bit_count;
+	unsigned char	*data;
+	long			size;
+	int				color_mode;
+	unsigned char	color_swap;
+}				t_tga;
+
 typedef struct	s_object
 {
 	t_material	material;
@@ -116,12 +137,14 @@ typedef struct	s_uniforms
 {
 	t_vec3		ray_origin;
 	t_vec2		rot;
-	t_vec2		resolution;
+	float		aspect;
 	t_vec2		time;
 	float		delta_time;
 	t_vec2		frame;
 	t_vec4		mouse;
 	bool		entered;
+	GLuint		skybox;
+	GLuint		noise;
 }				t_uniforms;
 
 # define RT_GLSL_VERSION "#version 410"
@@ -143,7 +166,9 @@ typedef struct	s_rt
 ********************************************************************************
 */
 
+char			*read_file(char *buf, int siz, const char *path);
 void			load_scene(t_rt *rt, const char *path);
+GLuint			load_skybox(t_rt *rt);
 t_rt			*init(t_rt *rt, const char *path);
 void			loop(t_rt *rt);
 void			panic(const char *msg);
@@ -151,5 +176,9 @@ void			panic(const char *msg);
 void			make_window(t_gldata *gldata);
 void			load_glsl(char *buf, t_gldata *gldata);
 void			init_callbacks(t_rt *rt);
-
+void			load_shader(char *b, GLuint *sid, GLenum st, const char *path);
+void			load_noise(t_rt *rt);
+void			link_program(GLuint *program_out, GLuint vs_id, GLuint fs_id);
+void			init_pp(t_rt *rt);
+void			pp_uniform_update(t_rt *rt);
 #endif

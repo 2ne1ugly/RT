@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: arherrer <marvin@42.fr>                    +#+  +:+       +#+         #
+#    By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/04/29 15:17:56 by arherrer          #+#    #+#              #
-#    Updated: 2019/05/24 21:33:40 by arherrer         ###   ########.fr        #
+#    Updated: 2019/06/01 20:33:03 by mchi             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CFLAGS := -Wall -Werror -Wextra -Wpedantic -g
 name := libft.a
-src := ft_io_putstr.c ft_str_strlen.c
+src := ft_io_putstr.c ft_str_strlen.c ft_str_strjoin.c
 obj := $(src:.c=.o)
 
 .PHONY: all

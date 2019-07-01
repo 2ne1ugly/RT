@@ -1,9 +1,9 @@
 #version 410
 
 layout(location = 0) in vec3 vertexPosition_modelspace;
-
+out vec2 vertexPassThrough;
 void main()
 {
-    gl_Position.xyz = vertexPosition_modelspace;
-    gl_Position.w = 1.0;
+    vertexPassThrough = vertexPosition_modelspace.xy;
+    gl_Position = vec4(vertexPosition_modelspace.xyz, 1.0); //so that it doesn't clip;
 }

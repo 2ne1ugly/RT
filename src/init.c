@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arherrer <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:15:42 by arherrer          #+#    #+#             */
-/*   Updated: 2019/05/25 21:14:25 by arherrer         ###   ########.fr       */
+/*   Updated: 2019/06/27 23:24:13 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,25 +21,24 @@ static void	rt_gldata_init(char *buffer, t_rt *rt, const char *path)
 
 static void	rt_getuniforms(t_gldata *gldata)
 {
-	gldata->ray_origin_id = glGetUniformLocation(gldata->program_id,
-		"ray_origin");
-	if (gldata->ray_origin_id == -1)
-		panic("shader was corrupt");
+	gldata->ray_origin_id =
+		glGetUniformLocation(gldata->program_id, "ray_origin");
 	gldata->rot_id = glGetUniformLocation(gldata->program_id, "rot");
-	if (gldata->rot_id == -1)
-		panic("shader was corrupt");
-	gldata->resolution_id = glGetUniformLocation(gldata->program_id,
-		"resolution");
-	if (gldata->resolution_id == -1)
-		panic("shader was corrupt");
+	gldata->aspect_id = glGetUniformLocation(gldata->program_id, "aspect");
 	gldata->time_id = glGetUniformLocation(gldata->program_id, "time");
-	if (gldata->time_id == -1)
-		panic("shader was corrupt");
 	gldata->mouse_id = glGetUniformLocation(gldata->program_id, "mouse");
-	if (gldata->mouse_id == -1)
+	gldata->skybox_id = glGetUniformLocation(gldata->program_id, "skybox");
+	gldata->noise_sampler = glGetUniformLocation(gldata->program_id, "noise");
+	//gldata->render_sampler =
+	//	glGetUniformLocation(gldata->pp_program_id, "renderedTexture");
+	if (gldata->ray_origin_id == -1 || gldata->rot_id == -1 ||
+		gldata->aspect_id == -1 || gldata->time_id == -1 ||
+		gldata->mouse_id == -1 || gldata->skybox_id == -1)
+	//	gldata->render_sampler == -1)
 		panic("shader was corrupt");
 }
 
+//fix binding problem.
 static void	rt_uniforms_init(t_rt *rt, t_uniforms *uniforms)
 {
 	int	width;
@@ -48,17 +47,29 @@ static void	rt_uniforms_init(t_rt *rt, t_uniforms *uniforms)
 	glfwGetFramebufferSize(rt->gldata.window, &width, &height);
 	rt->uniforms.ray_origin = (t_vec3){0, 1, 8};
 	rt->uniforms.rot = (t_vec2){0, 0};
-	rt->uniforms.resolution = (t_vec2){width, height};
+	rt->uniforms.aspect = (float)width / height;
 	uniforms->time.y = glfwGetTime();
 	uniforms->time.x = glfwGetTime();
+	uniforms->skybox = load_skybox(rt);
+	glUseProgram(rt->gldata.program_id);
+	glUniform1i(rt->gldata.skybox_id, 1);
+	glUniform1i(rt->gldata.noise_sampler, 0);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, uniforms->skybox);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, uniforms->noise);
+
 }
 
 t_rt		*init(t_rt *rt, const char *path)
 {
 	rt_gldata_init(rt->buffer, rt, path);
-	rt_uniforms_init(rt, &rt->uniforms);
 	init_callbacks(rt);
+	//init_pp(rt);
+	load_noise(rt);
 	rt_getuniforms(&rt->gldata);
+	rt_uniforms_init(rt, &rt->uniforms);
+	//pp_uniform_update(rt);
 	return (rt);
 }
 
