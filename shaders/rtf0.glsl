@@ -56,7 +56,7 @@ const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
 const Material grey = Material(vec3(.5),vec3(0.5),0.,.5);
 const Material white = Material(vec3(1.),vec3(0.5),1.0,0.0);
 
-// 3,7,8,9,10,12
+// 7,8,9,10,12
 
 // Constructors
 void Light(Material m, vec3 p);
@@ -246,6 +246,15 @@ Shape Plane(Material m, vec3 p, vec4 n)
 	shape.p = -p;
 	shape.a = n.xyz;
 	shape.b.x = n.z;
+	return shape;
+}
+Shape HexagonalPrism(Material m, vec3 p, vec2 h)
+{
+	Shape shape;
+	shape.t = 7;
+	shape.m = m;
+	shape.p = -p;
+	shape.a.xy = h;
 	return shape;
 }
 Shape Octahedron(Material m, vec3 p, float s)
@@ -654,6 +663,8 @@ float sdf_shape(Shape shape)
 			shape.a, shape.b, shape.c.x, shape.c.y);
 	} else if (shape.t == 6) {
 		return sdf_plane(scene_p_ + shape.p, vec4(shape.a, shape.b.x));
+	} else if (shape.t == 7) {
+		return sdf_hex_prism(scene_p_ + shape.p, shape.a.xy);
 	} else if (shape.t == 11) {
 		return sdf_octahedron(scene_p_ + shape.p, shape.a.x);
 	} else if (shape.t == 13) {
@@ -733,7 +744,16 @@ float sdf_plane(vec3 p, vec4 n)
 	n = normalize(n);  // TODO: is this necessary?
 	return dot(p, n.xyz) + n.w;
 }
-
+float sdf_hex_prism(vec3 p, vec2 h)
+{
+	const vec3 k = vec3(-0.8660254, 0.5, 0.57735);
+	p = abs(p);
+	p.xy -= 2.0*min(dot(k.xy, p.xy), 0.0)*k.xy;
+	vec2 d = vec2(
+			length(p.xy-vec2(clamp(p.x,-k.z*h.x,k.z*h.x), h.x))*sign(p.y-h.x),
+			p.z-h.y );
+	return min(max(d.x,d.y),0.0) + length(max(d,0.0));
+}
 float sdf_octahedron(vec3 p, float s)
 {
 	p = abs(p);
