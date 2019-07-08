@@ -283,6 +283,7 @@ Shape Translate(vec3 p, Shape s)
 **********************************************************************/
 
 float intersect(vec3 ro, vec3 rd);
+vec3 get_shading(vec3 v, vec3 n, vec3 p, vec3 kd, vec3 ks, float roughness, float metallic);
 float scene_sdf(vec3 p);
 vec3 scene_kd(vec3 p);
 float ambient_occlusion(vec3 p, vec3 n);
@@ -360,48 +361,17 @@ vec4 render()
 	}
 	vec3 p = ro + (rd * d);
 	vec3 kd = scene_kd(p) * ambient_light;
-
+	vec3 ks = vec3(0.05);
 	//common values
 	vec3 v = -rd;
 	vec3 n = get_normal(p);
 	vec3 r = normalize(-reflect(v,n));
-	float dotrv = dot(r, v);
+	float roughness = clamp(ROUGHNESS, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
 	vec3 diffuseColor = kd * (1.0 - METALLIC);
 	vec3 specularColor = vec3(0.05);
-	#ifdef PBR
+	vec3 spec = get_shading(v, n, p, kd, ks, roughness, METALLIC);
+	float dotrv = dot(r, v);
 	float dotnv = dot(n, v);
-	ROUGHNESS = clamp(ROUGHNESS, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
-	#endif
-
-	// Go through local lights
-	vec3 spec = vec3(0.);
-	float shadows = 0.;
-	for (int i = 0; i < MAX_LIGHTS; ++i) {
-		if (i == light_count) {
-			break ;
-		}
-		Light_ light = lights[i];
-		vec3 l = normalize(light.p - p);
-		float dotln = dot(l, n);
-		float dotrl = dot(r, l);
-		#ifdef PBR
-		vec3 h = normalize(v + l);
-		float dotvl = dot(l, v);
-		float dotnh = dot(n, h);
-		float dotvh = dot(v, h);
-		#endif
-		shadows += soft_shadows(p, normalize(light.p));
-		#ifdef PBR
-		vec3 brdfSpec = D_GGX(ROUGHNESS, dotnh, h) * V_SmithGGXCorrelated(ROUGHNESS, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
-		vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, ROUGHNESS, dotnv, dotln, dotvh);
-		vec3 brdf = brdfDiff + brdfSpec;
-		vec3 OutThroughput = brdf * light.k * saturate(dotln);
-		spec += OutThroughput;
-		#else
-		spec += max(dotln, 0) * light.k * kd;		//diffuse
-		spec += pow(max(dotrl, 0), 42.) * light.k;	//specular
-		#endif
-	}
 
 	//monte carlo integration for global illumination. only skybox for now.
 	//replace texture(skybox, l).rgb to actual color calculation.
@@ -415,6 +385,7 @@ vec4 render()
 		for (int i = 0; i < nSample; i++) {
 			vec3 h = ImportanceSampleGGX(samplePoint.xy, ROUGHNESS, n);
 			vec3 l = 2 * dot(v, h) * h - v;
+
 			float dotln = dot(l, n);
 			float dotvh = dot(v, h);
 			vec3 brdfSpec = V_SmithGGXCorrelated(ROUGHNESS, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
@@ -443,7 +414,7 @@ vec4 render()
 	}
 	#endif
 
-	shadows = .5 + .5 * shadows;
+//	shadows = .5 + .5 * shadows;
 	
 	float ao = ambient_occlusion(p, n);
 	vec3 color; 
@@ -476,6 +447,36 @@ float intersect(vec3 ro, vec3 rd)
 		t += d;
 	}
 	return t;
+}
+
+vec3 get_shading(vec3 v, vec3 n, vec3 p, vec3 kd, vec3 ks, float roughness, float metallic)
+{
+	vec3 r = normalize(-reflect(v,n));
+	float dotrv = dot(r, v);
+	float dotnv = dot(n, v);
+	vec3 diffuseColor = kd * (1.0 - metallic);
+	vec3 specularColor = ks;
+	roughness = clamp(roughness, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
+	vec3 spec = vec3(0.);
+	// Go through local lights
+	for (int i = 0; i < MAX_LIGHTS; ++i) {
+		if (i == light_count) {
+			break ;
+		}
+		Light_ light = lights[i];
+		vec3 l = normalize(light.p - p);
+		float dotln = dot(l, n);
+		float dotrl = dot(r, l);
+		vec3 h = normalize(v + l);
+		float dotvl = dot(l, v);
+		float dotnh = dot(n, h);
+		float dotvh = dot(v, h);
+		vec3 brdfSpec = D_GGX(roughness, dotnh, h) * V_SmithGGXCorrelated(roughness, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
+		vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, roughness, dotnv, dotln, dotvh);
+		vec3 brdf = brdfDiff + brdfSpec;
+		spec += brdf * light.k * saturate(dotln);
+	}
+	return spec;
 }
 
 float scene_sdf(vec3 p)
