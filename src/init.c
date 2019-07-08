@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:15:42 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/07 20:21:41 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/07 20:39:47 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,6 @@ t_rt		*init(t_rt *rt, const char *path)
 	load_noise(rt);
 	rt_getuniforms(&rt->gldata);
 	rt_uniforms_init(rt, &rt->uniforms);
-	pp_uniform_update(rt);
 	return (rt);
 }
 

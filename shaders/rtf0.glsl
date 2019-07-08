@@ -58,14 +58,14 @@ const vec3 grey = vec3(.5);
 const vec3 white = vec3(1.);
 */
 const Material black = Material(vec3(0.),vec3(0.),1.,0.);
-const Material red = Material(vec3(1.,0.,0.),vec3(0.),1.,0.);
+const Material red = Material(vec3(1.,0.,0.),vec3(0.05),0.,0.);
 const Material yellow = Material(vec3(1.,1.,0.),vec3(0.),1.,0.);
 const Material green = Material(vec3(0.,1.,0.),vec3(0.),1.,0.);
 const Material cyan = Material(vec3(0.,1.,1.),vec3(0.),1.,0.);
-const Material blue = Material(vec3(0.,0.,1.),vec3(0.),1.,0.);
+const Material blue = Material(vec3(0.,0.,1.),vec3(0.1),0.,0.);
 const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
-const Material grey = Material(vec3(.5),vec3(0.),1.,0.);
-const Material white = Material(vec3(1.),vec3(0.),1.,0.);
+const Material grey = Material(vec3(.5),vec3(0.5),0.,.5);
+const Material white = Material(vec3(1.),vec3(0.5),1.0,0.0);
 
 // Constructors
 void Light(Material m, vec3 p);
@@ -105,7 +105,7 @@ out vec4 out_color;
 const float FOV = 90.0;
 const float MIN_DISTANCE = 1.;
 const float MAX_DISTANCE = 256.;
-const int MAX_STEPS = 256;
+const int MAX_STEPS = 64;
 const float EPSILON = 0.0005;
 const float EPSMOD = 0.0105;
 const int MAX_AO = 4;
@@ -301,7 +301,7 @@ Shape Translate(vec3 p, Shape s)
 **********************************************************************/
 
 float intersect(vec3 ro, vec3 rd);
-vec3 get_shading(vec3 v, vec3 n, vec3 p, vec3 kd, vec3 ks, float roughness, float metallic);
+vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m);
 float scene_sdf(vec3 p);
 Material scene_m(vec3 p);
 float ambient_occlusion(vec3 p, vec3 n);
@@ -385,10 +385,10 @@ vec4 render()
 	vec3 v = -rd;
 	vec3 n = get_normal(p);
 	vec3 r = normalize(-reflect(v,n));
-	float roughness = clamp(ROUGHNESS, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
-	vec3 diffuseColor = kd * (1.0 - METALLIC);
-	vec3 specularColor = vec3(0.05);
-	vec3 spec = get_shading(v, n, p, kd, ks, roughness, METALLIC);
+	float roughness = clamp(m.roughness, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
+	vec3 diffuseColor = kd * (1.0 - m.metallic);
+	vec3 specularColor = m.ks;
+	vec3 spec = get_shading(v, n, p, m);
 	float dotrv = dot(r, v);
 	float dotnv = dot(n, v);
 
@@ -398,17 +398,28 @@ vec4 render()
 	#ifdef PBR
 	//specular term
 	{
-		const int nSample = 64;
+		const int nSample = 8;
 		vec3 sampled = vec3(0);
 		vec4 samplePoint = texture(noise, vertexPassThrough);
 		for (int i = 0; i < nSample; i++) {
-			vec3 h = ImportanceSampleGGX(samplePoint.xy, ROUGHNESS, n);
+			vec3 h = ImportanceSampleGGX(samplePoint.xy, roughness, n);
 			vec3 l = 2 * dot(v, h) * h - v;
-
+			float gd = intersect(p, l);
 			float dotln = dot(l, n);
 			float dotvh = dot(v, h);
-			vec3 brdfSpec = V_SmithGGXCorrelated(ROUGHNESS, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
-			sampled += brdfSpec * texture(skybox, l).rgb * saturate(dotln);
+			vec3 brdfSpec = V_SmithGGXCorrelated(roughness, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
+			vec3 k;
+			if (gd >= MAX_DISTANCE) {
+				k = texture(skybox, l).rgb;
+			} else {
+				Material lm = scene_m(vec3(0));
+				vec3 ln = get_normal(vec3(0));
+				vec3 lp = p + (l * gd);
+				//lp += ln * EPSILON;
+				vec3 lv = -l;
+				k = get_shading(lv, ln, lp, lm);
+			}
+			sampled += brdfSpec * k * saturate(dotln);
 			samplePoint = texture(noise, samplePoint.zw);
 		}
 		spec += sampled / nSample;
@@ -416,7 +427,7 @@ vec4 render()
 
 	//diffuse term
 	{
-		const int nSample = 64;
+		const int nSample = 8;
 		vec3 sampled = vec3(0);
 		vec4 samplePoint = texture(noise, vertexPassThrough);
 		for (int i = 0; i < nSample; i++) {
@@ -425,8 +436,22 @@ vec4 render()
 			float dotln = dot(l, n);
 			vec3 h = normalize(v + l);
 			float dotvh = dot(v, h);
-			vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, ROUGHNESS, dotnv, dotln, dotvh);
-			sampled += brdfDiff * texture(skybox, l).rgb * saturate(dotln);
+
+			vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, roughness, dotnv, dotln, dotvh);
+			vec3 k;
+			float gd = intersect(p, l);
+			if (gd >= MAX_DISTANCE) {
+				k = texture(skybox, l).rgb;
+			} else {
+				Material lm = scene_m(vec3(0));
+				vec3 ln = get_normal(vec3(0));
+				vec3 lp = p + (l * gd);
+				//lp += ln * EPSILON;
+				vec3 lv = -l;
+				//k = lm.kd;
+				k = get_shading(lv, ln, lp, lm);
+			}
+			sampled += brdfDiff * k * saturate(dotln);
 			samplePoint = texture(noise, samplePoint.zw);
 		}
 		spec += sampled / nSample;
@@ -457,7 +482,7 @@ vec4 render()
 
 float intersect(vec3 ro, vec3 rd)
 {
-	float t = 1.;
+	float t = EPSILON * 10.;
 	for (int i = 0; i < MAX_STEPS; ++i) {
 		float d = scene_sdf(ro + (rd * t));
 		if (d < EPSILON) {
@@ -468,14 +493,14 @@ float intersect(vec3 ro, vec3 rd)
 	return t;
 }
 
-vec3 get_shading(vec3 v, vec3 n, vec3 p, vec3 kd, vec3 ks, float roughness, float metallic)
+vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m)
 {
 	vec3 r = normalize(-reflect(v,n));
 	float dotrv = dot(r, v);
 	float dotnv = dot(n, v);
-	vec3 diffuseColor = kd * (1.0 - metallic);
-	vec3 specularColor = ks;
-	roughness = clamp(roughness, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
+	vec3 diffuseColor = m.kd * (1.0 - m.metallic);
+	vec3 specularColor = m.ks;
+	float roughness = clamp(m.roughness, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
 	vec3 spec = vec3(0.);
 	// Go through local lights
 	for (int i = 0; i < MAX_LIGHTS; ++i) {
@@ -483,7 +508,12 @@ vec3 get_shading(vec3 v, vec3 n, vec3 p, vec3 kd, vec3 ks, float roughness, floa
 			break ;
 		}
 		Light_ light = lights[i];
-		vec3 l = normalize(light.p - p);
+		vec3 pl = light.p - p;
+		float light_dist = length(pl);
+		vec3 l = (light.p - p) / light_dist;
+		if (intersect(p, l) < light_dist) {
+			continue ;
+		}
 		float dotln = dot(l, n);
 		float dotrl = dot(r, l);
 		vec3 h = normalize(v + l);

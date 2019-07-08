@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:13:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/07 20:20:04 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/07 20:38:02 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ static void	render(t_rt *rt)
 void		post_render(t_rt *rt)
 {
 	glUseProgram(rt->gldata.pp_program_id);
+	pp_uniform_update(rt);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);

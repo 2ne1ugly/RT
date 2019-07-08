@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 21:24:39 by mchi              #+#    #+#             */
-/*   Updated: 2019/06/26 23:58:31 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/07 20:36:32 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,8 @@ static void init_pp_shader(t_rt *rt)
 
 void		pp_uniform_update(t_rt *rt)
 {
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE2);
+	glUniform1i(rt->gldata.render_sampler, 2);
 	glBindTexture(GL_TEXTURE_2D, rt->gldata.target_texture);
 }
 
