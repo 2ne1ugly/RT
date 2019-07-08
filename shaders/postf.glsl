@@ -9,7 +9,7 @@ void main()
      vec2 texCoord = vertexPassThrough * 0.5 + 0.5;
      vec4 inColor = texture(renderedTexture, texCoord);
 
-#define SEPIA
+//#define SEPIA
 
 #ifdef SEPIA
      outColor.r = min((inColor.r * .393) + (inColor.g *.769) + (inColor.b * .189), 1.0);

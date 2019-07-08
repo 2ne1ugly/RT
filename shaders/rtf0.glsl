@@ -56,7 +56,7 @@ const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
 const Material grey = Material(vec3(.5),vec3(0.5),0.,.5);
 const Material white = Material(vec3(1.),vec3(0.5),1.0,0.0);
 
-// 2.5,3,7,8,9,10,12
+// 3,7,8,9,10,12
 
 // Constructors
 void Light(Material m, vec3 p);
@@ -65,7 +65,7 @@ Shape Sphere(Material m, vec3 p, float s);  // 1
 Shape Box(Material m, vec3 p, vec3 b);  // 2
 Shape RoundBox(Material m, vec3 p, vec3 b, float r);  // 2.5
 Shape Torus(Material m, vec3 p, vec2 t);  // 3
-Shape CappedTorus(Material m, vec3 p, vec3 sc, float ra, float rb);  // 3.5
+Shape CappedTorus(Material m, vec3 p, vec2 sc, float ra, float rb);  // 3.5
 Shape Cylinder(Material m, vec3 p, vec3 a, vec3 b, float r);  // 4
 Shape Cone(Material m, vec3 p, vec3 a, vec3 b, float ra, float rb);  // 5
 Shape Plane(Material m, vec3 p, vec4 n);  // 6
@@ -195,6 +195,25 @@ Shape RoundBox(Material m, vec3 p, vec3 b, float r)
 	shape.p = -p;
 	shape.a.xyz = b;
 	shape.b.x = r;
+	return shape;
+}
+Shape Torus(Material m, vec3 p, vec2 t)
+{
+	Shape shape;
+	shape.t = 3;
+	shape.m = m;
+	shape.p = -p;
+	shape.a.xy = t;
+	return shape;
+}
+Shape CappedTorus(Material m, vec3 p, vec2 sc, float ra, float rb)
+{
+	Shape shape;
+	shape.t = 3.5;
+	shape.m = m;
+	shape.p = -p;
+	shape.a = vec3(sc, ra);
+	shape.b.x = rb;
 	return shape;
 }
 Shape Cylinder(Material m, vec3 p, vec3 a, vec3 b, float r)
@@ -334,6 +353,7 @@ float sdf_sphere(vec3 p, float s);  // 1
 float sdf_box(vec3 p, vec3 b);  // 2
 float sdf_roundbox(vec3 p, vec3 b, float r);  // 2.5
 float sdf_torus(vec3 p, vec2 t);  // 3
+float sdf_cappedtorus(vec3 p, vec2 sc, float ra, float rb);
 float sdf_cylinder(vec3 p, vec3 a, vec3 b, float r);  // 4
 float sdf_cone(vec3 p, vec3 a, vec3 b, float ra, float rb);  // 5
 float sdf_plane(vec3 p, vec4 n);  // 6
@@ -622,6 +642,11 @@ float sdf_shape(Shape shape)
 		return sdf_box(scene_p_ + shape.p, shape.a);
 	} else if (shape.t == 2.5) {
 		return sdf_roundbox(scene_p_ + shape.p, shape.a, shape.b.x);
+	} else if (shape.t == 3) {
+		return sdf_torus(scene_p_ + shape.p, shape.a.xy);
+	} else if (shape.t == 3.5) {
+		return sdf_cappedtorus(scene_p_ + shape.p, shape.a.xy, shape.a.z,
+				shape.b.x);
 	} else if (shape.t == 4) {
 		return sdf_cylinder(scene_p_ + shape.p, shape.a, shape.b, shape.c.x);
 	} else if (shape.t == 5) {
@@ -650,6 +675,17 @@ float sdf_roundbox(vec3 p, vec3 b, float r)
 {
 	vec3 d = abs(p) - b;
 	return length(max(d,0.0)) - r + min(max(d.x,max(d.y,d.z)),0.0);
+}
+float sdf_torus(vec3 p, vec2 t)
+{
+	vec2 q = vec2(length(p.xz)-t.x,p.y);
+	return length(q)-t.y;
+}
+float sdf_cappedtorus(vec3 p, vec2 sc, float ra, float rb)
+{
+	p.x = abs(p.x);
+	float k = (sc.y*p.x>sc.x*p.y) ? dot(p.xy,sc) : length(p.xy);
+	return sqrt( dot(p,p) + ra*ra - 2.0*ra*k ) - rb;
 }
 float sdf_cylinder(vec3 p, vec3 a, vec3 b, float r)
 {
