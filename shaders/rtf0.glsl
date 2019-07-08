@@ -25,10 +25,17 @@ uniform sampler2D noise;
 ** scene's public data
 **********************************************************************/
 
+struct Material {
+	vec3 kd;
+	vec3 ks;
+	float roughness;
+	float metallic;
+};
+
 struct Shape {
+	Material m;
 	float t;
 	float sd;
-	vec3 kd;
 	vec3 p;
 	vec3 a;
 	vec3 b;
@@ -39,6 +46,7 @@ struct Shape {
 // TODO: implement some perlin noise or something
 // Base materials
 vec3 ambient_light = vec3(.5);
+/*
 const vec3 black = vec3(0.);
 const vec3 red = vec3(1.,0.,0.);
 const vec3 yellow = vec3(1.,1.,0.);
@@ -48,16 +56,26 @@ const vec3 blue = vec3(0.,0.,1.);
 const vec3 magenta = vec3(1.,0.,1.);
 const vec3 grey = vec3(.5);
 const vec3 white = vec3(1.);
+*/
+const Material black = Material(vec3(0.),vec3(0.),1.,0.);
+const Material red = Material(vec3(1.,0.,0.),vec3(0.),1.,0.);
+const Material yellow = Material(vec3(1.,1.,0.),vec3(0.),1.,0.);
+const Material green = Material(vec3(0.,1.,0.),vec3(0.),1.,0.);
+const Material cyan = Material(vec3(0.,1.,1.),vec3(0.),1.,0.);
+const Material blue = Material(vec3(0.,0.,1.),vec3(0.),1.,0.);
+const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
+const Material grey = Material(vec3(.5),vec3(0.),1.,0.);
+const Material white = Material(vec3(1.),vec3(0.),1.,0.);
 
 // Constructors
-void Light(vec3 k, vec3 p);
+void Light(Material m, vec3 p);
 Shape Null(void);  // 0
-Shape Sphere(vec3 kd, vec3 p, float s);  // 1
-Shape Cylinder(vec3 kd, vec3 p, vec3 a, vec3 b, float r);  // 4
-Shape Cone(vec3 kd, vec3 p, vec3 a, vec3 b, float ra, float rb);  // 5
-Shape Plane(vec3 kd, vec3 p, vec4 n);  // 6
-Shape Octahedron(vec3 kd, vec3 p, float s);  // 11
-Shape Quad(vec3 kd, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
+Shape Sphere(Material m, vec3 p, float s);  // 1
+Shape Cylinder(Material m, vec3 p, vec3 a, vec3 b, float r);  // 4
+Shape Cone(Material m, vec3 p, vec3 a, vec3 b, float ra, float rb);  // 5
+Shape Plane(Material m, vec3 p, vec4 n);  // 6
+Shape Octahedron(Material m, vec3 p, float s);  // 11
+Shape Quad(Material m, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
 
 // Operations
 Shape Union(Shape a, Shape b);
@@ -124,14 +142,14 @@ void main()
 // Lights
 const int MAX_LIGHTS = 256;
 struct Light_ {
-	vec3 k;
+	Material m;
 	vec3 p;
 } lights[MAX_LIGHTS];
 int light_count;
 
-void Light(vec3 k, vec3 p)
+void Light(Material m, vec3 p)
 {
-	Light_ light = Light_(k, p);
+	Light_ light = Light_(m, p);
 	for (int i = 0; i < MAX_LIGHTS; ++i) {
 		if (i == light_count) {
 			lights[i] = light;
@@ -147,65 +165,65 @@ Shape Null(void)
 	Shape shape;
 	shape.t = 0;
 	shape.sd = MAX_DISTANCE;
-	shape.kd = vec3(.0);
+	shape.m = black;
 	shape.p = vec3(0.);
 	return shape;
 }
-Shape Sphere(vec3 kd, vec3 p, float s)
+Shape Sphere(Material m, vec3 p, float s)
 {
 	Shape shape;
 	shape.t = 1;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a.x = s;
 	return shape;
 }
-Shape Cylinder(vec3 kd, vec3 p, vec3 a, vec3 b, float r)
+Shape Cylinder(Material m, vec3 p, vec3 a, vec3 b, float r)
 {
 	Shape shape;
 	shape.t = 4;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a = a;
 	shape.b = b;
 	shape.c.x = r;
 	return shape;
 }
-Shape Cone(vec3 kd, vec3 p, vec3 a, vec3 b, float ra, float rb)
+Shape Cone(Material m, vec3 p, vec3 a, vec3 b, float ra, float rb)
 {
 	Shape shape;
 	shape.t = 5;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a = a;
 	shape.b = b;
 	shape.c.xy = vec2(ra, rb);
 	return shape;
 }
-Shape Plane(vec3 kd, vec3 p, vec4 n)
+Shape Plane(Material m, vec3 p, vec4 n)
 {
 	Shape shape;
 	shape.t = 6;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a = n.xyz;
 	shape.b.x = n.z;
 	return shape;
 }
-Shape Octahedron(vec3 kd, vec3 p, float s)
+Shape Octahedron(Material m, vec3 p, float s)
 {
 	Shape shape;
 	shape.t = 11;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a.x = s;
 	return shape;
 }
-Shape Quad(vec3 kd, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d)
+Shape Quad(Material m, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d)
 {
 	Shape shape;
 	shape.t = 13;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a = a;
 	shape.b = b;
@@ -217,7 +235,7 @@ Shape Quad(vec3 kd, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d)
 // Scene data
 vec3 scene_p_;
 float scene_sd_;
-vec3 scene_kd_;
+Material scene_m_;
 float sdf_shape(Shape shape);
 Shape Union(Shape a, Shape b)
 {
@@ -232,7 +250,7 @@ Shape Union(Shape a, Shape b)
 	shape.sd = min(a.sd, b.sd);
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
-		scene_kd_ = shape.kd;
+		scene_m_ = shape.m;
 	}
 	return shape;
 }
@@ -249,7 +267,7 @@ Shape Subtraction(Shape a, Shape b)
 	shape.sd = max(-a.sd, b.sd);
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
-		scene_kd_ = shape.kd;
+		scene_m_ = shape.m;
 	}
 	return shape;
 }
@@ -266,7 +284,7 @@ Shape Intersection(Shape a, Shape b)
 	shape.sd = max(a.sd, b.sd);
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
-		scene_kd_ = shape.kd;
+		scene_m_ = shape.m;
 	}
 	return shape;
 }
@@ -285,7 +303,7 @@ Shape Translate(vec3 p, Shape s)
 float intersect(vec3 ro, vec3 rd);
 vec3 get_shading(vec3 v, vec3 n, vec3 p, vec3 kd, vec3 ks, float roughness, float metallic);
 float scene_sdf(vec3 p);
-vec3 scene_kd(vec3 p);
+Material scene_m(vec3 p);
 float ambient_occlusion(vec3 p, vec3 n);
 float soft_shadows(vec3 p, vec3 lp);
 vec3 get_normal(vec3 p);
@@ -360,8 +378,9 @@ vec4 render()
 		return texture(skybox, rd);
 	}
 	vec3 p = ro + (rd * d);
-	vec3 kd = scene_kd(p) * ambient_light;
-	vec3 ks = vec3(0.05);
+	Material m = scene_m(p);
+	vec3 kd = m.kd * ambient_light;  // TODO: fix to use pbr
+	vec3 ks = m.ks;
 	//common values
 	vec3 v = -rd;
 	vec3 n = get_normal(p);
@@ -474,7 +493,7 @@ vec3 get_shading(vec3 v, vec3 n, vec3 p, vec3 kd, vec3 ks, float roughness, floa
 		vec3 brdfSpec = D_GGX(roughness, dotnh, h) * V_SmithGGXCorrelated(roughness, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
 		vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, roughness, dotnv, dotln, dotvh);
 		vec3 brdf = brdfDiff + brdfSpec;
-		spec += brdf * light.k * saturate(dotln);
+		spec += brdf * light.m.kd * saturate(dotln);
 	}
 	return spec;
 }
@@ -487,7 +506,7 @@ float scene_sdf(vec3 p)
 	// Intialize scene data
 	scene_p_ = p;
 	scene_sd_ = MAX_DISTANCE;
-	scene_kd_ = vec3(0.);
+	scene_m_ = black;
 	Scene();
 	return scene_sd_;
 }
@@ -501,9 +520,9 @@ vec3 get_normal(vec3 p) {
 		e.xxx * scene_sdf(p + e.xxx));
 }
 
-vec3 scene_kd(vec3 p)
+Material scene_m(vec3 p)
 {
-	return scene_kd_;
+	return scene_m_;
 }
 
 float ambient_occlusion(vec3 p, vec3 n)
