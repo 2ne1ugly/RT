@@ -2,7 +2,13 @@ ambient_light = vec3(.6);
 Union (
 	Box(cyan, vec3(.5), vec3(.5))
 	,RoundBox(red, vec3(1.), vec3(.25), .5));
+Union (
+	Torus(grey, vec3(1.5), vec2(.3, .14))
+	,CappedTorus(black, vec3(-1.), vec2(.25, .15), .5, .1));
 
+Union (
+	HexagonalPrism(blue, vec3(-2.,-2.,0.), vec2(.5, .25))
+	,TriangularPrism(blue, vec3(2.,2.,0.), vec2(.5, .25)));
 
 
 
