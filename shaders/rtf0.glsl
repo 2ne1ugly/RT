@@ -58,6 +58,13 @@ const vec3 grey = vec3(.5);
 const vec3 white = vec3(1.);
 */
 const Material black = Material(vec3(0.),vec3(0.),1.,0.);
+const Material red = Material(vec3(1.,0.,0.),vec3(0.),1.,0.);
+const Material yellow = Material(vec3(1.,1.,0.),vec3(0.),1.,0.);
+const Material green = Material(vec3(0.,1.,0.),vec3(0.),1.,0.);
+const Material cyan = Material(vec3(0.,1.,1.),vec3(0.),1.,0.);
+const Material blue = Material(vec3(0.,0.,1.),vec3(0.),1.,0.);
+const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
+const Material grey = Material(vec3(.5),vec3(0.),1.,0.);
 const Material white = Material(vec3(1.),vec3(0.),1.,0.);
 
 // Constructors
