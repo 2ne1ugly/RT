@@ -56,7 +56,7 @@ const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
 const Material grey = Material(vec3(.5),vec3(0.5),0.,.5);
 const Material white = Material(vec3(1.),vec3(0.5),1.0,0.0);
 
-// 7,8,9,10,12
+// 8,9,10,12
 
 // Constructors
 void Light(Material m, vec3 p);
@@ -257,6 +257,15 @@ Shape HexagonalPrism(Material m, vec3 p, vec2 h)
 	shape.a.xy = h;
 	return shape;
 }
+Shape TriangularPrism(Material m, vec3 p, vec2 h)
+{
+	Shape shape;
+	shape.t = 8;
+	shape.m = m;
+	shape.p = -p;
+	shape.a.xy = h;
+	return shape;
+}
 Shape Octahedron(Material m, vec3 p, float s)
 {
 	Shape shape;
@@ -367,7 +376,7 @@ float sdf_cylinder(vec3 p, vec3 a, vec3 b, float r);  // 4
 float sdf_cone(vec3 p, vec3 a, vec3 b, float ra, float rb);  // 5
 float sdf_plane(vec3 p, vec4 n);  // 6
 float sdf_hex_prism(vec3 p, vec2 h);  // 7
-float sdf_capsule(vec3 p, vec3 a, vec3 b, float r);  // 8
+float sdf_tri_prism(vec3 p, vec2 h);  // 8
 float sdf_capped_cylinder(vec3 p, vec2 h);  // 9
 float sdf_capped_cone(vec3 p, float h, float r1, float r2);  // 10
 float sdf_octahedron(vec3 p, float s);  // 11
@@ -665,6 +674,8 @@ float sdf_shape(Shape shape)
 		return sdf_plane(scene_p_ + shape.p, vec4(shape.a, shape.b.x));
 	} else if (shape.t == 7) {
 		return sdf_hex_prism(scene_p_ + shape.p, shape.a.xy);
+	} else if (shape.t == 8) {
+		return sdf_tri_prism(scene_p_ + shape.p, shape.a.xy);
 	} else if (shape.t == 11) {
 		return sdf_octahedron(scene_p_ + shape.p, shape.a.x);
 	} else if (shape.t == 13) {
@@ -753,6 +764,11 @@ float sdf_hex_prism(vec3 p, vec2 h)
 			length(p.xy-vec2(clamp(p.x,-k.z*h.x,k.z*h.x), h.x))*sign(p.y-h.x),
 			p.z-h.y );
 	return min(max(d.x,d.y),0.0) + length(max(d,0.0));
+}
+float sdf_tri_prism(vec3 p, vec2 h)
+{
+	vec3 q = abs(p);
+	return max(q.z-h.y,max(q.x*0.866025+p.y*0.5,-p.y)-h.x*0.5);
 }
 float sdf_octahedron(vec3 p, float s)
 {

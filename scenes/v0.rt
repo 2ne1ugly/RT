@@ -8,7 +8,8 @@ Union (
 
 Union (
 	HexagonalPrism(blue, vec3(-2.,-2.,0.), vec2(.5, .25))
-	,Null());
+	,TriangularPrism(blue, vec3(2.,2.,0.), vec2(.5, .25)));
+
 
 
 
