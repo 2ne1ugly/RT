@@ -266,6 +266,17 @@ Shape TriangularPrism(Material m, vec3 p, vec2 h)
 	shape.a.xy = h;
 	return shape;
 }
+Shape Capsule(Material m, vec3 p, vec3 a, vec3 b, float r)
+{
+	Shape shape;
+	shape.t = 9;
+	shape.m = m;
+	shape.p = -p;
+	shape.a = a;
+	shape.b = b;
+	shape.c.x = r;
+	return shape;
+}
 Shape Octahedron(Material m, vec3 p, float s)
 {
 	Shape shape;
@@ -377,8 +388,7 @@ float sdf_cone(vec3 p, vec3 a, vec3 b, float ra, float rb);  // 5
 float sdf_plane(vec3 p, vec4 n);  // 6
 float sdf_hex_prism(vec3 p, vec2 h);  // 7
 float sdf_tri_prism(vec3 p, vec2 h);  // 8
-float sdf_capped_cylinder(vec3 p, vec2 h);  // 9
-float sdf_capped_cone(vec3 p, float h, float r1, float r2);  // 10
+float sdf_capsule(vec3 p, vec3 a, vec3 b, float r);  // 9
 float sdf_octahedron(vec3 p, float s);  // 11
 float udf_triangle(vec3 p, vec3 a, vec3 b, vec3 c);  // 12
 float udf_quad(vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
@@ -676,6 +686,8 @@ float sdf_shape(Shape shape)
 		return sdf_hex_prism(scene_p_ + shape.p, shape.a.xy);
 	} else if (shape.t == 8) {
 		return sdf_tri_prism(scene_p_ + shape.p, shape.a.xy);
+	} else if (shape.t == 9) {
+		return sdf_capsule(scene_p_ + shape.p, shape.a, shape.b, shape.c.x);
 	} else if (shape.t == 11) {
 		return sdf_octahedron(scene_p_ + shape.p, shape.a.x);
 	} else if (shape.t == 13) {
@@ -769,6 +781,12 @@ float sdf_tri_prism(vec3 p, vec2 h)
 {
 	vec3 q = abs(p);
 	return max(q.z-h.y,max(q.x*0.866025+p.y*0.5,-p.y)-h.x*0.5);
+}
+float sdf_capsule(vec3 p, vec3 a, vec3 b, float r)
+{
+	vec3 pa = p - a, ba = b - a;
+	float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+	return length(pa - ba*h) - r;
 }
 float sdf_octahedron(vec3 p, float s)
 {
