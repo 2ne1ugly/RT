@@ -1,0 +1,10 @@
+ambient_light = vec3(.6);
+Union (
+	Box(cyan, vec3(.5), vec3(.5))
+	,RoundBox(red, vec3(1.), vec3(.25), .5));
+
+
+
+
+
+Light(white, vec3(4.2,0.,4.2));

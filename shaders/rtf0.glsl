@@ -56,14 +56,14 @@ const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
 const Material grey = Material(vec3(.5),vec3(0.5),0.,.5);
 const Material white = Material(vec3(1.),vec3(0.5),1.0,0.0);
 
-// 2,3,7,8,9,10,12
+// 2.5,3,7,8,9,10,12
 
 // Constructors
 void Light(Material m, vec3 p);
 Shape Null(void);  // 0
 Shape Sphere(Material m, vec3 p, float s);  // 1
 Shape Box(Material m, vec3 p, vec3 b);  // 2
-Shape RoundBox(Material m, vec3 b, float r);  // 2.5
+Shape RoundBox(Material m, vec3 p, vec3 b, float r);  // 2.5
 Shape Torus(Material m, vec3 p, vec2 t);  // 3
 Shape CappedTorus(Material m, vec3 p, vec3 sc, float ra, float rb);  // 3.5
 Shape Cylinder(Material m, vec3 p, vec3 a, vec3 b, float r);  // 4
@@ -176,6 +176,25 @@ Shape Sphere(Material m, vec3 p, float s)
 	shape.m = m;
 	shape.p = -p;
 	shape.a.x = s;
+	return shape;
+}
+Shape Box(Material m, vec3 p, vec3 b)
+{
+	Shape shape;
+	shape.t = 2;
+	shape.m = m;
+	shape.p = -p;
+	shape.a = b;
+	return shape;
+}
+Shape RoundBox(Material m, vec3 p, vec3 b, float r)
+{
+	Shape shape;
+	shape.t = 2.5;
+	shape.m = m;
+	shape.p = -p;
+	shape.a.xyz = b;
+	shape.b.x = r;
 	return shape;
 }
 Shape Cylinder(Material m, vec3 p, vec3 a, vec3 b, float r)
@@ -313,6 +332,7 @@ float dot2(vec3 v) {return dot(v,v);}
 float sdf_light(vec3 p);  // 0
 float sdf_sphere(vec3 p, float s);  // 1
 float sdf_box(vec3 p, vec3 b);  // 2
+float sdf_roundbox(vec3 p, vec3 b, float r);  // 2.5
 float sdf_torus(vec3 p, vec2 t);  // 3
 float sdf_cylinder(vec3 p, vec3 a, vec3 b, float r);  // 4
 float sdf_cone(vec3 p, vec3 a, vec3 b, float ra, float rb);  // 5
@@ -598,6 +618,10 @@ float sdf_shape(Shape shape)
 {
 	if (shape.t == 1) {
 		return sdf_sphere(scene_p_ + shape.p, shape.a.x);
+	} else if (shape.t == 2) {
+		return sdf_box(scene_p_ + shape.p, shape.a);
+	} else if (shape.t == 2.5) {
+		return sdf_roundbox(scene_p_ + shape.p, shape.a, shape.b.x);
 	} else if (shape.t == 4) {
 		return sdf_cylinder(scene_p_ + shape.p, shape.a, shape.b, shape.c.x);
 	} else if (shape.t == 5) {
@@ -616,6 +640,16 @@ float sdf_shape(Shape shape)
 float sdf_sphere(vec3 p, float s)
 {
 	return length(p) - s;
+}
+float sdf_box(vec3 p, vec3 b)
+{
+	vec3 d = abs(p) - b;
+	return length(max(d,0.0)) + min(max(d.x,max(d.y,d.z)),0.0);
+}
+float sdf_roundbox(vec3 p, vec3 b, float r)
+{
+	vec3 d = abs(p) - b;
+	return length(max(d,0.0)) - r + min(max(d.x,max(d.y,d.z)),0.0);
 }
 float sdf_cylinder(vec3 p, vec3 a, vec3 b, float r)
 {

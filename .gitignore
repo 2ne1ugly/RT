@@ -3,4 +3,5 @@
 **/*.dylib
 **/*.pc
 lib*
+shaders/tmp*
 RT
