@@ -63,6 +63,6 @@ void main()
     vec4 inColor = texture(renderedTexture, texCoord);
 
     //outColor = sepia(inColor);
-
-	outColor = fxaa();
+	//outColor = fxaa();
+	outColor = inColor;
 }
