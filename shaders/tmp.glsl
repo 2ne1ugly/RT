@@ -29,10 +29,17 @@ uniform sampler2D noise;
 ** scene's public data
 **********************************************************************/
 
+struct Material {
+	vec3 kd;
+	vec3 ks;
+	float roughness;
+	float metallic;
+};
+
 struct Shape {
+	Material m;
 	float t;
 	float sd;
-	vec3 kd;
 	vec3 p;
 	vec3 a;
 	vec3 b;
@@ -43,6 +50,7 @@ struct Shape {
 // TODO: implement some perlin noise or something
 // Base materials
 vec3 ambient_light = vec3(.5);
+/*
 const vec3 black = vec3(0.);
 const vec3 red = vec3(1.,0.,0.);
 const vec3 yellow = vec3(1.,1.,0.);
@@ -52,16 +60,26 @@ const vec3 blue = vec3(0.,0.,1.);
 const vec3 magenta = vec3(1.,0.,1.);
 const vec3 grey = vec3(.5);
 const vec3 white = vec3(1.);
+*/
+const Material black = Material(vec3(0.),vec3(0.),1.,0.);
+const Material red = Material(vec3(1.,0.,0.),vec3(0.05),0.,0.);
+const Material yellow = Material(vec3(1.,1.,0.),vec3(0.),1.,0.);
+const Material green = Material(vec3(0.,1.,0.),vec3(0.),1.,0.);
+const Material cyan = Material(vec3(0.,1.,1.),vec3(0.),1.,0.);
+const Material blue = Material(vec3(0.,0.,1.),vec3(0.1),0.,0.);
+const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
+const Material grey = Material(vec3(.5),vec3(0.5),0.,.5);
+const Material white = Material(vec3(1.),vec3(0.5),1.0,0.0);
 
 // Constructors
-void Light(vec3 k, vec3 p);
+void Light(Material m, vec3 p);
 Shape Null(void);  // 0
-Shape Sphere(vec3 kd, vec3 p, float s);  // 1
-Shape Cylinder(vec3 kd, vec3 p, vec3 a, vec3 b, float r);  // 4
-Shape Cone(vec3 kd, vec3 p, vec3 a, vec3 b, float ra, float rb);  // 5
-Shape Plane(vec3 kd, vec3 p, vec4 n);  // 6
-Shape Octahedron(vec3 kd, vec3 p, float s);  // 11
-Shape Quad(vec3 kd, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
+Shape Sphere(Material m, vec3 p, float s);  // 1
+Shape Cylinder(Material m, vec3 p, vec3 a, vec3 b, float r);  // 4
+Shape Cone(Material m, vec3 p, vec3 a, vec3 b, float ra, float rb);  // 5
+Shape Plane(Material m, vec3 p, vec4 n);  // 6
+Shape Octahedron(Material m, vec3 p, float s);  // 11
+Shape Quad(Material m, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
 
 // Operations
 Shape Union(Shape a, Shape b);
@@ -91,7 +109,7 @@ out vec4 out_color;
 const float FOV = 90.0;
 const float MIN_DISTANCE = 1.;
 const float MAX_DISTANCE = 256.;
-const int MAX_STEPS = 256;
+const int MAX_STEPS = 64;
 const float EPSILON = 0.0005;
 const float EPSMOD = 0.0105;
 const int MAX_AO = 4;
@@ -128,14 +146,14 @@ void main()
 // Lights
 const int MAX_LIGHTS = 256;
 struct Light_ {
-	vec3 k;
+	Material m;
 	vec3 p;
 } lights[MAX_LIGHTS];
 int light_count;
 
-void Light(vec3 k, vec3 p)
+void Light(Material m, vec3 p)
 {
-	Light_ light = Light_(k, p);
+	Light_ light = Light_(m, p);
 	for (int i = 0; i < MAX_LIGHTS; ++i) {
 		if (i == light_count) {
 			lights[i] = light;
@@ -151,65 +169,65 @@ Shape Null(void)
 	Shape shape;
 	shape.t = 0;
 	shape.sd = MAX_DISTANCE;
-	shape.kd = vec3(.0);
+	shape.m = black;
 	shape.p = vec3(0.);
 	return shape;
 }
-Shape Sphere(vec3 kd, vec3 p, float s)
+Shape Sphere(Material m, vec3 p, float s)
 {
 	Shape shape;
 	shape.t = 1;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a.x = s;
 	return shape;
 }
-Shape Cylinder(vec3 kd, vec3 p, vec3 a, vec3 b, float r)
+Shape Cylinder(Material m, vec3 p, vec3 a, vec3 b, float r)
 {
 	Shape shape;
 	shape.t = 4;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a = a;
 	shape.b = b;
 	shape.c.x = r;
 	return shape;
 }
-Shape Cone(vec3 kd, vec3 p, vec3 a, vec3 b, float ra, float rb)
+Shape Cone(Material m, vec3 p, vec3 a, vec3 b, float ra, float rb)
 {
 	Shape shape;
 	shape.t = 5;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a = a;
 	shape.b = b;
 	shape.c.xy = vec2(ra, rb);
 	return shape;
 }
-Shape Plane(vec3 kd, vec3 p, vec4 n)
+Shape Plane(Material m, vec3 p, vec4 n)
 {
 	Shape shape;
 	shape.t = 6;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a = n.xyz;
 	shape.b.x = n.z;
 	return shape;
 }
-Shape Octahedron(vec3 kd, vec3 p, float s)
+Shape Octahedron(Material m, vec3 p, float s)
 {
 	Shape shape;
 	shape.t = 11;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a.x = s;
 	return shape;
 }
-Shape Quad(vec3 kd, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d)
+Shape Quad(Material m, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d)
 {
 	Shape shape;
 	shape.t = 13;
-	shape.kd = kd;
+	shape.m = m;
 	shape.p = -p;
 	shape.a = a;
 	shape.b = b;
@@ -221,7 +239,7 @@ Shape Quad(vec3 kd, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d)
 // Scene data
 vec3 scene_p_;
 float scene_sd_;
-vec3 scene_kd_;
+Material scene_m_;
 float sdf_shape(Shape shape);
 Shape Union(Shape a, Shape b)
 {
@@ -236,7 +254,7 @@ Shape Union(Shape a, Shape b)
 	shape.sd = min(a.sd, b.sd);
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
-		scene_kd_ = shape.kd;
+		scene_m_ = shape.m;
 	}
 	return shape;
 }
@@ -253,7 +271,7 @@ Shape Subtraction(Shape a, Shape b)
 	shape.sd = max(-a.sd, b.sd);
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
-		scene_kd_ = shape.kd;
+		scene_m_ = shape.m;
 	}
 	return shape;
 }
@@ -270,7 +288,7 @@ Shape Intersection(Shape a, Shape b)
 	shape.sd = max(a.sd, b.sd);
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
-		scene_kd_ = shape.kd;
+		scene_m_ = shape.m;
 	}
 	return shape;
 }
@@ -286,9 +304,10 @@ Shape Translate(vec3 p, Shape s)
 ** prototypes
 **********************************************************************/
 
-float intersect(vec3 ro, vec3 rd);
+float intersect(vec3 ro, vec3 rd, float max_dist);
+vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m);
 float scene_sdf(vec3 p);
-vec3 scene_kd(vec3 p);
+Material scene_m(vec3 p);
 float ambient_occlusion(vec3 p, vec3 n);
 float soft_shadows(vec3 p, vec3 lp);
 vec3 get_normal(vec3 p);
@@ -355,7 +374,7 @@ vec4 render()
 	ro.yz *= rd_rotate(rot.y);
 	rd.yz *= rd_rotate(rot.y);
 
-	float d = intersect(ro, rd);
+	float d = intersect(ro, rd, MAX_DISTANCE);
 	if (d >= MAX_DISTANCE) {
 		// TODO: implement a good background
 		//return vec4(0.);
@@ -363,65 +382,47 @@ vec4 render()
 		return texture(skybox, rd);
 	}
 	vec3 p = ro + (rd * d);
-	vec3 kd = scene_kd(p) * ambient_light;
-
+	Material m = scene_m(p);
+	vec3 kd = m.kd * ambient_light;  // TODO: fix to use pbr
+	vec3 ks = m.ks;
 	//common values
 	vec3 v = -rd;
 	vec3 n = get_normal(p);
 	vec3 r = normalize(-reflect(v,n));
+	float roughness = clamp(m.roughness, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
+	vec3 diffuseColor = kd * (1.0 - m.metallic);
+	vec3 specularColor = m.ks;
+	vec3 spec = get_shading(v, n, p, m);
 	float dotrv = dot(r, v);
-	vec3 diffuseColor = kd * (1.0 - METALLIC);
-	vec3 specularColor = vec3(0.05);
-	#ifdef PBR
 	float dotnv = dot(n, v);
-	ROUGHNESS = clamp(ROUGHNESS, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
-	#endif
-
-	// Go through local lights
-	vec3 spec = vec3(0.);
-	float shadows = 0.;
-	for (int i = 0; i < MAX_LIGHTS; ++i) {
-		if (i == light_count) {
-			break ;
-		}
-		Light_ light = lights[i];
-		vec3 l = normalize(light.p - p);
-		float dotln = dot(l, n);
-		float dotrl = dot(r, l);
-		#ifdef PBR
-		vec3 h = normalize(v + l);
-		float dotvl = dot(l, v);
-		float dotnh = dot(n, h);
-		float dotvh = dot(v, h);
-		#endif
-		shadows += soft_shadows(p, normalize(light.p));
-		#ifdef PBR
-		vec3 brdfSpec = D_GGX(ROUGHNESS, dotnh, h) * V_SmithGGXCorrelated(ROUGHNESS, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
-		vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, ROUGHNESS, dotnv, dotln, dotvh);
-		vec3 brdf = brdfDiff + brdfSpec;
-		vec3 OutThroughput = brdf * light.k * saturate(dotln);
-		spec += OutThroughput;
-		#else
-		spec += max(dotln, 0) * light.k * kd;		//diffuse
-		spec += pow(max(dotrl, 0), 42.) * light.k;	//specular
-		#endif
-	}
 
 	//monte carlo integration for global illumination. only skybox for now.
+	//replace texture(skybox, l).rgb to actual color calculation.
 	//possibly replace randomness to hammersley
-	#ifdef PBR
-	//specular term
+	//	specular term
 	{
-		const int nSample = 64;
+		const int nSample = 4;
 		vec3 sampled = vec3(0);
 		vec4 samplePoint = texture(noise, vertexPassThrough);
 		for (int i = 0; i < nSample; i++) {
-			vec3 h = ImportanceSampleGGX(samplePoint.xy, ROUGHNESS, n);
+			vec3 h = ImportanceSampleGGX(samplePoint.xy, roughness, n);
 			vec3 l = 2 * dot(v, h) * h - v;
 			float dotln = dot(l, n);
 			float dotvh = dot(v, h);
-			vec3 brdfSpec = V_SmithGGXCorrelated(ROUGHNESS, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
-			sampled += brdfSpec * texture(skybox, l).rgb * saturate(dotln);
+			vec3 brdfSpec = V_SmithGGXCorrelated(roughness, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
+			vec3 k;
+			float gd = intersect(p, l, MAX_DISTANCE);
+			if (gd >= MAX_DISTANCE) {
+				k = texture(skybox, l).rgb;
+			} else {
+				Material lm = scene_m(vec3(0));
+				vec3 ln = get_normal(vec3(0));
+				vec3 lp = p + (l * gd);
+				//lp += ln * EPSILON;
+				vec3 lv = -l;
+				k = get_shading(lv, ln, lp, lm);
+			}
+			sampled += brdfSpec * k * saturate(dotln);
 			samplePoint = texture(noise, samplePoint.zw);
 		}
 		spec += sampled / nSample;
@@ -429,7 +430,7 @@ vec4 render()
 
 	//diffuse term
 	{
-		const int nSample = 64;
+		const int nSample = 4;
 		vec3 sampled = vec3(0);
 		vec4 samplePoint = texture(noise, vertexPassThrough);
 		for (int i = 0; i < nSample; i++) {
@@ -438,15 +439,29 @@ vec4 render()
 			float dotln = dot(l, n);
 			vec3 h = normalize(v + l);
 			float dotvh = dot(v, h);
-			vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, ROUGHNESS, dotnv, dotln, dotvh);
-			sampled += brdfDiff * texture(skybox, l).rgb * saturate(dotln);
+
+			vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, roughness, dotnv, dotln, dotvh);
+			vec3 k;
+			float gd = intersect(p, l, MAX_DISTANCE);
+			k = texture(skybox, l).rgb;
+			if (gd >= MAX_DISTANCE) {
+				k = texture(skybox, l).rgb;
+			} else {
+				Material lm = scene_m(vec3(0));
+				vec3 ln = get_normal(vec3(0));
+				vec3 lp = p + (l * gd);
+				//lp += ln * EPSILON;
+				vec3 lv = -l;
+				//k = lm.kd;
+				k = get_shading(lv, ln, lp, lm);
+			}
+			sampled += brdfDiff * k * saturate(dotln);
 			samplePoint = texture(noise, samplePoint.zw);
 		}
 		spec += sampled / nSample;
 	}
-	#endif
 
-	shadows = .5 + .5 * shadows;
+//	shadows = .5 + .5 * shadows;
 	
 	float ao = ambient_occlusion(p, n);
 	vec3 color; 
@@ -468,17 +483,52 @@ vec4 render()
 }
 
 
-float intersect(vec3 ro, vec3 rd)
+float intersect(vec3 ro, vec3 rd, float max_dist)
 {
-	float t = 1.;
+	float t = EPSILON * 100.;
 	for (int i = 0; i < MAX_STEPS; ++i) {
 		float d = scene_sdf(ro + (rd * t));
-		if (d < EPSILON) {
+		if (d < EPSILON || t >= max_dist) {
 			return t;
 		}
 		t += d;
 	}
 	return t;
+}
+
+vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m)
+{
+	vec3 r = normalize(-reflect(v,n));
+	float dotrv = dot(r, v);
+	float dotnv = dot(n, v);
+	vec3 diffuseColor = m.kd * (1.0 - m.metallic);
+	vec3 specularColor = m.ks;
+	float roughness = clamp(m.roughness, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
+	vec3 spec = vec3(0.);
+	// Go through local lights
+	for (int i = 0; i < MAX_LIGHTS; ++i) {
+		if (i == light_count) {
+			break ;
+		}
+		Light_ light = lights[i];
+		vec3 pl = light.p - p;
+		float light_dist = length(pl);
+		vec3 l = (light.p - p) / light_dist;
+		if (intersect(p, l, light_dist) < light_dist) {
+			continue ;
+		}
+		float dotln = dot(l, n);
+		float dotrl = dot(r, l);
+		vec3 h = normalize(v + l);
+		float dotvl = dot(l, v);
+		float dotnh = dot(n, h);
+		float dotvh = dot(v, h);
+		vec3 brdfSpec = D_GGX(roughness, dotnh, h) * V_SmithGGXCorrelated(roughness, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
+		vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, roughness, dotnv, dotln, dotvh);
+		vec3 brdf = brdfDiff + brdfSpec;
+		spec += brdf * light.m.kd * saturate(dotln);
+	}
+	return spec;
 }
 
 float scene_sdf(vec3 p)
@@ -489,7 +539,7 @@ float scene_sdf(vec3 p)
 	// Intialize scene data
 	scene_p_ = p;
 	scene_sd_ = MAX_DISTANCE;
-	scene_kd_ = vec3(0.);
+	scene_m_ = black;
 	Scene();
 	return scene_sd_;
 }
@@ -503,9 +553,9 @@ vec3 get_normal(vec3 p) {
 		e.xxx * scene_sdf(p + e.xxx));
 }
 
-vec3 scene_kd(vec3 p)
+Material scene_m(vec3 p)
 {
-	return scene_kd_;
+	return scene_m_;
 }
 
 float ambient_occlusion(vec3 p, vec3 n)

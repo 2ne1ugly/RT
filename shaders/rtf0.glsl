@@ -300,7 +300,7 @@ Shape Translate(vec3 p, Shape s)
 ** prototypes
 **********************************************************************/
 
-float intersect(vec3 ro, vec3 rd);
+float intersect(vec3 ro, vec3 rd, float max_dist);
 vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m);
 float scene_sdf(vec3 p);
 Material scene_m(vec3 p);
@@ -370,7 +370,7 @@ vec4 render()
 	ro.yz *= rd_rotate(rot.y);
 	rd.yz *= rd_rotate(rot.y);
 
-	float d = intersect(ro, rd);
+	float d = intersect(ro, rd, MAX_DISTANCE);
 	if (d >= MAX_DISTANCE) {
 		// TODO: implement a good background
 		//return vec4(0.);
@@ -395,20 +395,19 @@ vec4 render()
 	//monte carlo integration for global illumination. only skybox for now.
 	//replace texture(skybox, l).rgb to actual color calculation.
 	//possibly replace randomness to hammersley
-	#ifdef PBR
-	//specular term
+	//	specular term
 	{
-		const int nSample = 8;
+		const int nSample = 4;
 		vec3 sampled = vec3(0);
 		vec4 samplePoint = texture(noise, vertexPassThrough);
 		for (int i = 0; i < nSample; i++) {
 			vec3 h = ImportanceSampleGGX(samplePoint.xy, roughness, n);
 			vec3 l = 2 * dot(v, h) * h - v;
-			float gd = intersect(p, l);
 			float dotln = dot(l, n);
 			float dotvh = dot(v, h);
 			vec3 brdfSpec = V_SmithGGXCorrelated(roughness, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
 			vec3 k;
+			float gd = intersect(p, l, MAX_DISTANCE);
 			if (gd >= MAX_DISTANCE) {
 				k = texture(skybox, l).rgb;
 			} else {
@@ -427,7 +426,7 @@ vec4 render()
 
 	//diffuse term
 	{
-		const int nSample = 8;
+		const int nSample = 4;
 		vec3 sampled = vec3(0);
 		vec4 samplePoint = texture(noise, vertexPassThrough);
 		for (int i = 0; i < nSample; i++) {
@@ -439,7 +438,8 @@ vec4 render()
 
 			vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, roughness, dotnv, dotln, dotvh);
 			vec3 k;
-			float gd = intersect(p, l);
+			float gd = intersect(p, l, MAX_DISTANCE);
+			k = texture(skybox, l).rgb;
 			if (gd >= MAX_DISTANCE) {
 				k = texture(skybox, l).rgb;
 			} else {
@@ -456,7 +456,6 @@ vec4 render()
 		}
 		spec += sampled / nSample;
 	}
-	#endif
 
 //	shadows = .5 + .5 * shadows;
 	
@@ -480,12 +479,12 @@ vec4 render()
 }
 
 
-float intersect(vec3 ro, vec3 rd)
+float intersect(vec3 ro, vec3 rd, float max_dist)
 {
-	float t = EPSILON * 10.;
+	float t = EPSILON * 100.;
 	for (int i = 0; i < MAX_STEPS; ++i) {
 		float d = scene_sdf(ro + (rd * t));
-		if (d < EPSILON) {
+		if (d < EPSILON || t >= max_dist) {
 			return t;
 		}
 		t += d;
@@ -511,7 +510,7 @@ vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m)
 		vec3 pl = light.p - p;
 		float light_dist = length(pl);
 		vec3 l = (light.p - p) / light_dist;
-		if (intersect(p, l) < light_dist) {
+		if (intersect(p, l, light_dist) < light_dist) {
 			continue ;
 		}
 		float dotln = dot(l, n);
