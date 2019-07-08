@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:15:42 by arherrer          #+#    #+#             */
-/*   Updated: 2019/06/27 23:24:13 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/07 20:21:41 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,12 +29,12 @@ static void	rt_getuniforms(t_gldata *gldata)
 	gldata->mouse_id = glGetUniformLocation(gldata->program_id, "mouse");
 	gldata->skybox_id = glGetUniformLocation(gldata->program_id, "skybox");
 	gldata->noise_sampler = glGetUniformLocation(gldata->program_id, "noise");
-	//gldata->render_sampler =
-	//	glGetUniformLocation(gldata->pp_program_id, "renderedTexture");
+	gldata->render_sampler =
+		glGetUniformLocation(gldata->pp_program_id, "renderedTexture");
 	if (gldata->ray_origin_id == -1 || gldata->rot_id == -1 ||
 		gldata->aspect_id == -1 || gldata->time_id == -1 ||
-		gldata->mouse_id == -1 || gldata->skybox_id == -1)
-	//	gldata->render_sampler == -1)
+		gldata->mouse_id == -1 || gldata->skybox_id == -1 ||
+		gldata->noise_sampler == -1 || gldata->render_sampler == -1)
 		panic("shader was corrupt");
 }
 
@@ -65,11 +65,11 @@ t_rt		*init(t_rt *rt, const char *path)
 {
 	rt_gldata_init(rt->buffer, rt, path);
 	init_callbacks(rt);
-	//init_pp(rt);
+	init_pp(rt);
 	load_noise(rt);
 	rt_getuniforms(&rt->gldata);
 	rt_uniforms_init(rt, &rt->uniforms);
-	//pp_uniform_update(rt);
+	pp_uniform_update(rt);
 	return (rt);
 }
 

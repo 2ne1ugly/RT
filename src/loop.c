@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:13:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/06/26 23:57:58 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/07 20:20:04 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ static void	render(t_rt *rt)
 {
 	glUseProgram(rt->gldata.program_id);
 	uniform_update(rt);
-//	glBindFramebuffer(GL_FRAMEBUFFER, rt->gldata.framebuffer_id);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, rt->gldata.framebuffer_id);
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, rt->gldata.vertex_buffer);
@@ -59,7 +59,7 @@ void		loop(t_rt *rt)
 		if (rt->uniforms.entered)
 		{
 			render(rt);
-			//post_render(rt);
+			post_render(rt);
 			glfwSwapBuffers(rt->gldata.window);
 		}
 	}
