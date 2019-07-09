@@ -50,6 +50,7 @@
 [ ] Video Sequence
 [ ] Mobius Strip
 [*] Global Illumination / Caustics
+[ ] post-processing flags (uniforms)
 
 mchi:
 	- motion blur
@@ -57,6 +58,7 @@ mchi:
 	- ambient light
 
 arherrer:
+	- onions
 	- mobius strip
 	- twisted cube?
 	- table cloth
