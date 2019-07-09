@@ -381,7 +381,7 @@ vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m);
 float scene_sdf(vec3 p);
 Material scene_m(vec3 p);
 float ambient_occlusion(vec3 p, vec3 n);
-float soft_shadows(vec3 p, vec3 lp);
+float soft_shadows(vec3 ro, vec3 rd, float light_dist);
 vec3 get_normal(vec3 p);
 
 float dot2(vec3 v) {return dot(v,v);}
@@ -587,10 +587,9 @@ vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m)
 		Light_ light = lights[i];
 		vec3 pl = light.p - p;
 		float light_dist = length(pl);
-		vec3 l = (light.p - p) / light_dist;
-		if (intersect(p, l, light_dist) < light_dist) {
-			continue ;
-		}
+		vec3 l = pl / light_dist;
+		float shadow = soft_shadows(p, l, light_dist);
+		float ao = ambient_occlusion(p, n);
 		float dotln = dot(l, n);
 		float dotrl = dot(r, l);
 		vec3 h = normalize(v + l);
@@ -600,7 +599,7 @@ vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m)
 		vec3 brdfSpec = D_GGX(roughness, dotnh, h) * V_SmithGGXCorrelated(roughness, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
 		vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, roughness, dotnv, dotln, dotvh);
 		vec3 brdf = brdfDiff + brdfSpec;
-		spec += brdf * light.m.kd * saturate(dotln);
+		spec += brdf * light.m.kd * shadow * ao * saturate(dotln);
 	}
 	return spec;
 }
@@ -648,28 +647,23 @@ float ambient_occlusion(vec3 p, vec3 n)
 	return clamp(1.0 - a, 0.0, 1.0);
 }
 
-float soft_shadows(vec3 ro, vec3 rd)
+float soft_shadows(vec3 ro, vec3 rd, float light_dist)
 {
-	float res = 1.0;
-	float ph = MAX_DISTANCE;
-	float t = MIN_DISTANCE;
-	
-	// Basically a while loop, very dangerous
-	for (float _ = MIN_DISTANCE; _ < MAX_DISTANCE; _ += 0.)
-	{
-		float h = scene_sdf(ro + (rd * t));
-		if (h < EPSILON)
-			return 0.;
-		float y = (h * h) / (2. * ph);
-		float d = sqrt(h * h - y*y);
-		res = min(res, ((MAX_SSK * d) / max(0.,t - y)));
-		ph = h;
-		t += h;
-		if (t >= MAX_SS) {
-			break ;
-		}
-	}
-	return res;
+    float res = 1.0;
+    float ph = MAX_DISTANCE;
+	float t = EPSILON * 100;
+	while(t < light_dist)
+    {	
+        float h = scene_sdf(ro + rd * t);
+        if( h < EPSILON)
+            return 0.0;
+        float y = h * h / (2. * ph);
+        float d = sqrt(h * h- y * y);
+        res = min(res, MAX_SSK * d / max(0.,t - y));
+        ph = h;
+        t += h;
+    }
+    return res;
 }
 
 float sdf_shape(Shape shape)
