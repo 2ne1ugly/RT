@@ -46,17 +46,6 @@ struct Shape {
 // TODO: implement some perlin noise or something
 // Base materials
 vec3 ambient_light = vec3(.5);
-/*
-const vec3 black = vec3(0.);
-const vec3 red = vec3(1.,0.,0.);
-const vec3 yellow = vec3(1.,1.,0.);
-const vec3 green = vec3(0.,1.,0.);
-const vec3 cyan = vec3(0.,1.,1.);
-const vec3 blue = vec3(0.,0.,1.);
-const vec3 magenta = vec3(1.,0.,1.);
-const vec3 grey = vec3(.5);
-const vec3 white = vec3(1.);
-*/
 const Material black = Material(vec3(0.),vec3(0.),1.,0.);
 const Material red = Material(vec3(1.,0.,0.),vec3(0.05),0.,0.);
 const Material yellow = Material(vec3(1.,1.,0.),vec3(0.),1.,0.);
@@ -67,14 +56,25 @@ const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
 const Material grey = Material(vec3(.5),vec3(0.5),0.,.5);
 const Material white = Material(vec3(1.),vec3(0.5),1.0,0.0);
 
+// 10,12
+
 // Constructors
 void Light(Material m, vec3 p);
 Shape Null(void);  // 0
 Shape Sphere(Material m, vec3 p, float s);  // 1
+Shape Box(Material m, vec3 p, vec3 b);  // 2
+Shape RoundBox(Material m, vec3 p, vec3 b, float r);  // 2.5
+Shape Torus(Material m, vec3 p, vec2 t);  // 3
+Shape CappedTorus(Material m, vec3 p, vec2 sc, float ra, float rb);  // 3.5
 Shape Cylinder(Material m, vec3 p, vec3 a, vec3 b, float r);  // 4
 Shape Cone(Material m, vec3 p, vec3 a, vec3 b, float ra, float rb);  // 5
 Shape Plane(Material m, vec3 p, vec4 n);  // 6
+Shape HexagonalPrism(Material m, vec3 p, vec2 h);  // 7
+Shape TriangularPrism(Material m, vec3 p, vec2 h);  // 8
+Shape Capsule(Material m, vec3 p, vec3 a, vec3 b, float r);  // 9
+Shape Ellipsoid(Material m, vec3 p, vec3 r);  // 10
 Shape Octahedron(Material m, vec3 p, float s);  // 11
+Shape Triangle(Material m, vec3 p, vec3 a, vec3 b, vec3 c);  // 12
 Shape Quad(Material m, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
 
 // Operations
@@ -87,7 +87,7 @@ Shape Translate(vec3 p, Shape s);
 
 void Scene(void)
 {
-	SCENE;
+        SCENE;
 }
 
 /*
@@ -178,6 +178,44 @@ Shape Sphere(Material m, vec3 p, float s)
 	shape.a.x = s;
 	return shape;
 }
+Shape Box(Material m, vec3 p, vec3 b)
+{
+	Shape shape;
+	shape.t = 2;
+	shape.m = m;
+	shape.p = -p;
+	shape.a = b;
+	return shape;
+}
+Shape RoundBox(Material m, vec3 p, vec3 b, float r)
+{
+	Shape shape;
+	shape.t = 2.5;
+	shape.m = m;
+	shape.p = -p;
+	shape.a.xyz = b;
+	shape.b.x = r;
+	return shape;
+}
+Shape Torus(Material m, vec3 p, vec2 t)
+{
+	Shape shape;
+	shape.t = 3;
+	shape.m = m;
+	shape.p = -p;
+	shape.a.xy = t;
+	return shape;
+}
+Shape CappedTorus(Material m, vec3 p, vec2 sc, float ra, float rb)
+{
+	Shape shape;
+	shape.t = 3.5;
+	shape.m = m;
+	shape.p = -p;
+	shape.a = vec3(sc, ra);
+	shape.b.x = rb;
+	return shape;
+}
 Shape Cylinder(Material m, vec3 p, vec3 a, vec3 b, float r)
 {
 	Shape shape;
@@ -208,6 +246,44 @@ Shape Plane(Material m, vec3 p, vec4 n)
 	shape.p = -p;
 	shape.a = n.xyz;
 	shape.b.x = n.z;
+	return shape;
+}
+Shape HexagonalPrism(Material m, vec3 p, vec2 h)
+{
+	Shape shape;
+	shape.t = 7;
+	shape.m = m;
+	shape.p = -p;
+	shape.a.xy = h;
+	return shape;
+}
+Shape TriangularPrism(Material m, vec3 p, vec2 h)
+{
+	Shape shape;
+	shape.t = 8;
+	shape.m = m;
+	shape.p = -p;
+	shape.a.xy = h;
+	return shape;
+}
+Shape Capsule(Material m, vec3 p, vec3 a, vec3 b, float r)
+{
+	Shape shape;
+	shape.t = 9;
+	shape.m = m;
+	shape.p = -p;
+	shape.a = a;
+	shape.b = b;
+	shape.c.x = r;
+	return shape;
+}
+Shape Ellipsoid(Material m, vec3 p, vec3 r)
+{
+	Shape shape;
+	shape.t = 10;
+	shape.m = m;
+	shape.p = -p;
+	shape.a = r;
 	return shape;
 }
 Shape Octahedron(Material m, vec3 p, float s)
@@ -313,14 +389,16 @@ float dot2(vec3 v) {return dot(v,v);}
 float sdf_light(vec3 p);  // 0
 float sdf_sphere(vec3 p, float s);  // 1
 float sdf_box(vec3 p, vec3 b);  // 2
+float sdf_roundbox(vec3 p, vec3 b, float r);  // 2.5
 float sdf_torus(vec3 p, vec2 t);  // 3
+float sdf_cappedtorus(vec3 p, vec2 sc, float ra, float rb);
 float sdf_cylinder(vec3 p, vec3 a, vec3 b, float r);  // 4
 float sdf_cone(vec3 p, vec3 a, vec3 b, float ra, float rb);  // 5
 float sdf_plane(vec3 p, vec4 n);  // 6
 float sdf_hex_prism(vec3 p, vec2 h);  // 7
-float sdf_capsule(vec3 p, vec3 a, vec3 b, float r);  // 8
-float sdf_capped_cylinder(vec3 p, vec2 h);  // 9
-float sdf_capped_cone(vec3 p, float h, float r1, float r2);  // 10
+float sdf_tri_prism(vec3 p, vec2 h);  // 8
+float sdf_capsule(vec3 p, vec3 a, vec3 b, float r);  // 9
+float sdf_ellipsoid(vec3 p, vec3 r);  // 10
 float sdf_octahedron(vec3 p, float s);  // 11
 float udf_triangle(vec3 p, vec3 a, vec3 b, vec3 c);  // 12
 float udf_quad(vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
@@ -598,6 +676,15 @@ float sdf_shape(Shape shape)
 {
 	if (shape.t == 1) {
 		return sdf_sphere(scene_p_ + shape.p, shape.a.x);
+	} else if (shape.t == 2) {
+		return sdf_box(scene_p_ + shape.p, shape.a);
+	} else if (shape.t == 2.5) {
+		return sdf_roundbox(scene_p_ + shape.p, shape.a, shape.b.x);
+	} else if (shape.t == 3) {
+		return sdf_torus(scene_p_ + shape.p, shape.a.xy);
+	} else if (shape.t == 3.5) {
+		return sdf_cappedtorus(scene_p_ + shape.p, shape.a.xy, shape.a.z,
+				shape.b.x);
 	} else if (shape.t == 4) {
 		return sdf_cylinder(scene_p_ + shape.p, shape.a, shape.b, shape.c.x);
 	} else if (shape.t == 5) {
@@ -605,6 +692,14 @@ float sdf_shape(Shape shape)
 			shape.a, shape.b, shape.c.x, shape.c.y);
 	} else if (shape.t == 6) {
 		return sdf_plane(scene_p_ + shape.p, vec4(shape.a, shape.b.x));
+	} else if (shape.t == 7) {
+		return sdf_hex_prism(scene_p_ + shape.p, shape.a.xy);
+	} else if (shape.t == 8) {
+		return sdf_tri_prism(scene_p_ + shape.p, shape.a.xy);
+	} else if (shape.t == 9) {
+		return sdf_capsule(scene_p_ + shape.p, shape.a, shape.b, shape.c.x);
+	} else if (shape.t == 10) {
+		return sdf_ellipsoid(scene_p_ + shape.p, shape.a);
 	} else if (shape.t == 11) {
 		return sdf_octahedron(scene_p_ + shape.p, shape.a.x);
 	} else if (shape.t == 13) {
@@ -616,6 +711,27 @@ float sdf_shape(Shape shape)
 float sdf_sphere(vec3 p, float s)
 {
 	return length(p) - s;
+}
+float sdf_box(vec3 p, vec3 b)
+{
+	vec3 d = abs(p) - b;
+	return length(max(d,0.0)) + min(max(d.x,max(d.y,d.z)),0.0);
+}
+float sdf_roundbox(vec3 p, vec3 b, float r)
+{
+	vec3 d = abs(p) - b;
+	return length(max(d,0.0)) - r + min(max(d.x,max(d.y,d.z)),0.0);
+}
+float sdf_torus(vec3 p, vec2 t)
+{
+	vec2 q = vec2(length(p.xz)-t.x,p.y);
+	return length(q)-t.y;
+}
+float sdf_cappedtorus(vec3 p, vec2 sc, float ra, float rb)
+{
+	p.x = abs(p.x);
+	float k = (sc.y*p.x>sc.x*p.y) ? dot(p.xy,sc) : length(p.xy);
+	return sqrt( dot(p,p) + ra*ra - 2.0*ra*k ) - rb;
 }
 float sdf_cylinder(vec3 p, vec3 a, vec3 b, float r)
 {
@@ -663,7 +779,33 @@ float sdf_plane(vec3 p, vec4 n)
 	n = normalize(n);  // TODO: is this necessary?
 	return dot(p, n.xyz) + n.w;
 }
-
+float sdf_hex_prism(vec3 p, vec2 h)
+{
+	const vec3 k = vec3(-0.8660254, 0.5, 0.57735);
+	p = abs(p);
+	p.xy -= 2.0*min(dot(k.xy, p.xy), 0.0)*k.xy;
+	vec2 d = vec2(
+			length(p.xy-vec2(clamp(p.x,-k.z*h.x,k.z*h.x), h.x))*sign(p.y-h.x),
+			p.z-h.y );
+	return min(max(d.x,d.y),0.0) + length(max(d,0.0));
+}
+float sdf_tri_prism(vec3 p, vec2 h)
+{
+	vec3 q = abs(p);
+	return max(q.z-h.y,max(q.x*0.866025+p.y*0.5,-p.y)-h.x*0.5);
+}
+float sdf_capsule(vec3 p, vec3 a, vec3 b, float r)
+{
+	vec3 pa = p - a, ba = b - a;
+	float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+	return length(pa - ba*h) - r;
+}
+float sdf_ellipsoid(vec3 p, vec3 r)
+{
+	float k0 = length(p/r);
+	float k1 = length(p/(r*r));
+	return k0*(k0-1.0)/k1;
+}
 float sdf_octahedron(vec3 p, float s)
 {
 	p = abs(p);
