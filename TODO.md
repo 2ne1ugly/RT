@@ -1,19 +1,19 @@
-[ ] scene file
-[ ] scene file follows a structure
+[*] scene file
+[*] scene file follows a structure
 [ ] use of ambient light
 [ ] ambient light configurable in scene file
 [ ] unique cuts for all objects
 [ ] cut object by position
 [ ] cut objects through x,y,z
-[ ] rotation and translation
+[*] rotation and translation
 [ ] sin noise
 [ ] checkerboard pattern
 [ ] algorithm to change object's color
 [ ] Perlin noise
-[ ] Direct light
+[*] Direct light
 [ ] Parallel light (ambient light)
 [ ] Change of refractive %
-[ ] Reflection works
+[*] Reflection works
 [ ] Transparency works
 [ ] Change of refractive index
 [ ] Change of transparency %
@@ -22,21 +22,21 @@
 [ ] Texture defined by limit of object
 [ ] Transparency Modification
 [ ] Normal Mapping
-[ ] Composed Objects (one cube made out of quads)
-[ ] Negative Objects
-[ ] Simple native objects
+[*] Composed Objects (one cube made out of quads)
+[*] Negative Objects
+[*] Simple native objects
 [ ] Stereo Display (red/blue)
-[ ] Sepia
+[*] Sepia
 [ ] Motion Blur
-[ ] Cartoon Effect
-[ ] Antialising
+[*] Cartoon Effect
+[*] Antialising
 [ ] Cluster computing (2pt)
 [ ] Multi-thread
-[ ] It is fast
+[*] It is fast
 [ ] Saving as an image
 [ ] Automatic object creation
 [ ] Sequence of scenes
-[ ] Live Modification (eye, colors)
+[*] Live Modification (eye, colors)
 [ ] GUI (GTK)
 [ ] Loading Bar
 [ ] Fractal
@@ -49,4 +49,4 @@
 [ ] Model Loading
 [ ] Video Sequence
 [ ] Mobius Strip
-[ ] Global Illumination / Caustics
+[*] Global Illumination / Caustics
