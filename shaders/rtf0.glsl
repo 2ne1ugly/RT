@@ -123,6 +123,7 @@ Shape Ellipsoid(Material m, vec3 p, vec3 r);  // 10
 Shape Octahedron(Material m, vec3 p, float s);  // 11
 Shape Triangle(Material m, vec3 p, vec3 a, vec3 b, vec3 c);  // 12
 Shape Quad(Material m, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
+Shape Mandelbulb(Material m, vec3 p);  // 14
 
 // Base Operations
 Shape Union(Shape a, Shape b);
@@ -369,6 +370,14 @@ Shape Quad(Material m, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d)
 	shape.d = d;
 	return shape;
 }
+Shape Mandelbulb(Material m, vec3 p)
+{
+	Shape shape;
+	shape.t = 14;
+	shape.m = m;
+	shape.p = -p;
+	return shape;
+}
 
 // Scene data
 vec3 scene_p_;
@@ -525,6 +534,7 @@ float sdf_ellipsoid(vec3 p, vec3 r);  // 10
 float sdf_octahedron(vec3 p, float s);  // 11
 float udf_triangle(vec3 p, vec3 a, vec3 b, vec3 c);  // 12
 float udf_quad(vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
+float sdf_mandelbulb(vec3 p);  // 14
 
 /**********************************************************************
 ** PBR formulas
@@ -825,6 +835,8 @@ float sdf_shape(Shape shape)
 		return udf_triangle(scene_p_ + shape.p, shape.a, shape.b, shape.c);
 	} else if (shape.t == 13) {
 		return udf_quad(scene_p_ + shape.p, shape.a, shape.b, shape.c, shape.d);
+	} else if (shape.t == 14) {
+		return sdf_mandelbulb(scene_p_ + shape.p);
 	} else {
 		return MAX_DISTANCE;
 	}
@@ -986,6 +998,40 @@ float udf_quad(vec3 p, vec3 a, vec3 b, vec3 c, vec3 d)
 				dot2(dc * saturate(dot(dc, pc) / dot2(dc)) - pc)),
 			dot2(ad * saturate(dot(ad,pd) / dot2(ad)) - pd))
 		: dot(n, pa) * dot(n, pa) / dot2(n));
+}
+float sdf_mandelbulb(vec3 p)
+{
+	vec3 w = p;
+	float m = dot(w,w);
+	vec4 trap = vec4(abs(w),m);
+	float dz = 1.0;
+
+	for (int i = 0; i < 4; ++i) {
+		float m2 = m*m;
+		float m4 = m2*m2;
+		dz = 8.0*sqrt(m4*m2*m)*dz + 1.0;
+
+		float x = w.x; float x2 = x*x; float x4 = x2*x2;
+		float y = w.y; float y2 = y*y; float y4 = y2*y2;
+		float z = w.z; float z2 = z*z; float z4 = z2*z2;
+
+		float k3 = x2 + z2;
+		float k2 = inversesqrt(k3*k3*k3*k3*k3*k3*k3);
+		float k1 = x4 + y4 + z4 - 6.0*y2*z2 - 6.0*x2*y2 + 2.0*z2*x2;
+		float k4 = x2 - y2 + z2;
+
+		w.x = p.x +  64.0*x*y*z*(x2-z2)*k4*(x4-6.0*x2*z2+z4)*k1*k2;
+		w.y = p.y + -16.0*y2*k3*k4*k4 + k1*k1;
+		w.z = p.z +  -8.0*y*k4*(x4*x4 - 28.0*x4*x2*z2 + 70.0*x4*z4 - 28.0*x2*z2*z4 + z4*z4)*k1*k2;
+
+		trap = min(trap, vec4(abs(w),m));
+
+		m = dot(w,w);
+		if (m > 256.0) {
+			break;
+		}
+	}
+	return 0.25*log(m)*sqrt(m)/dz;
 }
 
 #ifdef PBR

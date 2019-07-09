@@ -39,7 +39,7 @@
 [*] Live Modification (eye, colors)
 [ ] GUI (GTK)
 [ ] Loading Bar
-[ ] Fractal
+[*] Fractal
 [ ] Custom Distance Functions
 [ ] Tower
 [ ] Table Cloth
@@ -58,10 +58,8 @@ mchi:
 	- ambient light
 
 arherrer:
-	- mobius strip
 	- twisted cube?
 	- table cloth
-	- fractal
 	- cuts
 
 zfaria:
