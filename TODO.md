@@ -50,3 +50,26 @@
 [ ] Video Sequence
 [ ] Mobius Strip
 [*] Global Illumination / Caustics
+
+mchi:
+	- motion blur
+	- area lights
+	- ambient light
+
+arherrer:
+	- mobius strip
+	- twisted cube?
+	- table cloth
+	- fractal
+	- perlin noise
+	- algorithm to change color (rainbow)
+	- sin noise
+	- cuts
+
+zfaria:
+	- loading bar
+	- multi-thread
+	- saving as image
+
+jcarpio-:
+	- scenes
