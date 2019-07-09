@@ -8,8 +8,8 @@
 [*] rotation and translation
 [*] sin noise
 [ ] checkerboard pattern
-[ ] algorithm to change object's color
-[ ] Perlin noise
+[*] algorithm to change object's color (sandbox)
+[*] Perlin noise
 [*] Direct light
 [ ] Parallel light (ambient light)
 [ ] Change of refractive %
@@ -62,8 +62,6 @@ arherrer:
 	- twisted cube?
 	- table cloth
 	- fractal
-	- perlin noise
-	- algorithm to change color (rainbow)
 	- cuts
 
 zfaria:

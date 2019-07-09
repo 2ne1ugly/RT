@@ -44,7 +44,6 @@ struct Shape {
 	vec3 d;
 };
 
-// TODO: implement some perlin noise or something
 // Base materials
 vec3 ambient_light = vec3(.5);
 const Material black = Material(vec3(0.),vec3(0.),1.,0.);
@@ -81,9 +80,28 @@ Material sandbox_()
 	vec3 kd = vec3(vec3(color,color * 0.5, sin(color + time_ / 3.0) * 0.75));
 	return Material(kd, vec3(0.), 1., 0.);
 }
-
 Material sandbox = sandbox_();
 
+
+Material perlin_noise_()
+{
+	vec4 f = vec4(0.);
+	vec2 u = gl_FragCoord.xy/ 8. * cos(time.x / 10.);
+	vec2 m;
+	vec2 r;
+	float l = 1.;
+	float s = 1.;
+
+#define h(n) fract(sin(n+vec2(0,157))*57.) 
+#define N m=fract(u*s); l=dot(u*s-m,vec2(1,157));s+=s; m*=m*(3.-m-m); r= mix(h(l),h(++l),m.x); f+= mix(r.x,r.y,m.y)/s;
+
+	N N N N
+
+#undef h
+#undef N
+	return Material(f.xyz * .5,vec3(0.),1.,0.);
+}
+Material perlin_noise = perlin_noise_();
 
 // 10,12
 
