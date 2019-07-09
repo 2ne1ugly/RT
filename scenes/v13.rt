@@ -1,0 +1,7 @@
+SmoothIntersection (
+	Sphere(red, vec3(0.), 1.)
+	,Sphere(white, vec3(.65), .5)
+	,0.5);
+
+Light(white, vec3(4.2,0.,4.2) * sin(time.x));
+Light(grey, vec3(4.2,0.,4.2) * cos(time.y));
