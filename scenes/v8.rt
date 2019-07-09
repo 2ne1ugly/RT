@@ -1,6 +1,6 @@
 ambient_light = vec3(4.);
 Union (
-	Octahedron(vec3(sin(time.x), cos(time.x), tan(time.x)), vec3(0.), 1.)
+	Octahedron(red, vec3(0.), 1.)
 	,Null());
 Light(white, vec3(cos(time.x),0.,sin(time.x) + 1.));
 Light(red, vec3(0.,8.,-4.));

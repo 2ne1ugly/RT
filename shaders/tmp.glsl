@@ -349,6 +349,8 @@ vec3 randomHemispherePoint(vec2 rand, vec3 n);
 vec3 randomCosineWeightedHemispherePoint(vec3 rand, vec3 n);
 vec3 ImportanceSampleGGX(vec2 Xi, float Roughness, vec3 N );
 vec4 CosineSampleHemisphere( vec2 E, vec3 N );
+vec2 Hammersley(uint Index, uint NumSamples, ivec2 Random);
+
 /**********************************************************************
 ** definitions
 **********************************************************************/
@@ -403,9 +405,8 @@ vec4 render()
 	{
 		const int nSample = 4;
 		vec3 sampled = vec3(0);
-		vec4 samplePoint = texture(noise, vertexPassThrough);
 		for (int i = 0; i < nSample; i++) {
-			vec3 h = ImportanceSampleGGX(samplePoint.xy, roughness, n);
+			vec3 h = ImportanceSampleGGX(Hammersley(i, nSample, ivec2(gl_FragCoord.xy)), roughness, n);
 			vec3 l = 2 * dot(v, h) * h - v;
 			float dotln = dot(l, n);
 			float dotvh = dot(v, h);
@@ -423,19 +424,18 @@ vec4 render()
 				k = get_shading(lv, ln, lp, lm);
 			}
 			sampled += brdfSpec * k * saturate(dotln);
-			samplePoint = texture(noise, samplePoint.zw);
 		}
 		spec += sampled / nSample;
 	}
 
 	//diffuse term
 	{
-		const int nSample = 4;
+		const uint nSample = 4;
 		vec3 sampled = vec3(0);
-		vec4 samplePoint = texture(noise, vertexPassThrough);
-		for (int i = 0; i < nSample; i++) {
+		// vec4 samplePoint = texture(noise, vertexPassThrough);
+		for (uint i = 0; i < nSample; i++) {
 			//do we have to divide with total pdf?
-			vec3 l = CosineSampleHemisphere(samplePoint.xy, n).xyz;
+			vec3 l = CosineSampleHemisphere(Hammersley(i, nSample, ivec2(gl_FragCoord.xy)), n).xyz;
 			float dotln = dot(l, n);
 			vec3 h = normalize(v + l);
 			float dotvh = dot(v, h);
@@ -456,7 +456,7 @@ vec4 render()
 				k = get_shading(lv, ln, lp, lm);
 			}
 			sampled += brdfDiff * k * saturate(dotln);
-			samplePoint = texture(noise, samplePoint.zw);
+			//samplePoint = texture(noise, samplePoint.zw);
 		}
 		spec += sampled / nSample;
 	}
@@ -802,5 +802,11 @@ vec4 CosineSampleHemisphere( vec2 E, vec3 N )
 	return vec4( H, PDF );
 }
 
+vec2 Hammersley( uint Index, uint NumSamples, ivec2 Random)
+{
+	float E1 = fract( float(Index) / NumSamples + float( Random.x & 0xffff ) / (1<<16) );
+	float E2 = float( bitfieldReverse(Index) ^ uint(Random.y)) * 2.3283064365386963e-10;
+	return vec2( E1, E2 );
+}
 
 #endif

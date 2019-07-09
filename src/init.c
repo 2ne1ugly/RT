@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:15:42 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/07 20:39:47 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/08 18:14:46 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ static void	rt_getuniforms(t_gldata *gldata)
 	if (gldata->ray_origin_id == -1 || gldata->rot_id == -1 ||
 		gldata->aspect_id == -1 || gldata->time_id == -1 ||
 		gldata->mouse_id == -1 || gldata->skybox_id == -1 ||
-		gldata->noise_sampler == -1 || gldata->render_sampler == -1)
+		gldata->render_sampler == -1)
 		panic("shader was corrupt");
 }
 
