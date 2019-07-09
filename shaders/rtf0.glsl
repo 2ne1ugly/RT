@@ -71,7 +71,7 @@ Material sandbox_()
 {
 	vec2 position = (gl_FragCoord.xy / vec2(640.,360.)) + mouse.xy / 4.0;
 
-	float time_ = mouse.x;
+	float time_ = time.x / 10;
 	float color = 0.0;
 	color += sin(position.x * cos(time_ / 15.0) * 80.0) + cos(position.y * cos(time_ / 15.0) * 10.0);
 	color += sin(position.y * sin(time_ / 10.0) * 40.0) + cos(position.x * sin(time_ / 25.0) * 40.0);
