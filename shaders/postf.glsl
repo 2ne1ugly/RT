@@ -242,7 +242,7 @@ void main()
 	vec2 texCoord = vertexPassThrough * 0.5 + 0.5;
     outColor = texture(renderedTexture, texCoord);
 
-     outColor = fxaa();
+    //outColor = fxaa();
 
     //outColor = cartoon(outColor);
 

@@ -596,7 +596,7 @@ vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m)
 		float dotvl = dot(l, v);
 		float dotnh = dot(n, h);
 		float dotvh = dot(v, h);
-		vec3 brdfSpec = D_GGX(roughness, dotnh, h) * V_SmithGGXCorrelated(roughness, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
+		vec3 brdfSpec = D_Beckmann(roughness, dotnh) * V_SmithGGXCorrelated(roughness, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
 		vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, roughness, dotnv, dotln, dotvh);
 		vec3 brdf = brdfDiff + brdfSpec;
 		spec += brdf * light.m.kd * shadow * ao * saturate(dotln);
