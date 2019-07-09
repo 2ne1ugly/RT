@@ -6,7 +6,7 @@
 [ ] cut object by position
 [ ] cut objects through x,y,z
 [*] rotation and translation
-[ ] sin noise
+[*] sin noise
 [ ] checkerboard pattern
 [ ] algorithm to change object's color
 [ ] Perlin noise
@@ -58,14 +58,12 @@ mchi:
 	- ambient light
 
 arherrer:
-	- onions
 	- mobius strip
 	- twisted cube?
 	- table cloth
 	- fractal
 	- perlin noise
 	- algorithm to change color (rainbow)
-	- sin noise
 	- cuts
 
 zfaria:

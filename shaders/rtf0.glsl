@@ -21,6 +21,7 @@ uniform float aspect;
 
 uniform samplerCube skybox;
 uniform sampler2D noise;
+
 /**********************************************************************
 ** scene's public data
 **********************************************************************/
@@ -56,6 +57,34 @@ const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
 const Material grey = Material(vec3(.5),vec3(0.5),0.,.5);
 const Material white = Material(vec3(1.),vec3(0.5),1.0,0.0);
 
+Material sin_noise_()
+{
+	return Material(
+	vec3(sin(gl_FragCoord.x),sin(gl_FragCoord.y),5.),
+	vec3(0.),
+	1.,
+	0.);
+}
+Material sin_noise = sin_noise_();
+
+Material sandbox_()
+{
+	vec2 position = (gl_FragCoord.xy / vec2(640.,360.)) + mouse.xy / 4.0;
+
+	float time_ = mouse.x;
+	float color = 0.0;
+	color += sin(position.x * cos(time_ / 15.0) * 80.0) + cos(position.y * cos(time_ / 15.0) * 10.0);
+	color += sin(position.y * sin(time_ / 10.0) * 40.0) + cos(position.x * sin(time_ / 25.0) * 40.0);
+	color += sin(position.x * sin(time_ / 5.0) * 10.0) + sin(position.y * sin(time_ / 35.0) * 80.0);
+	color *= sin(time_ / 10.0) * 0.5;
+
+	vec3 kd = vec3(vec3(color,color * 0.5, sin(color + time_ / 3.0) * 0.75));
+	return Material(kd, vec3(0.), 1., 0.);
+}
+
+Material sandbox = sandbox_();
+
+
 // 10,12
 
 // Constructors
@@ -85,13 +114,9 @@ Shape SmoothUnion(Shape a, Shape b, float k);
 Shape SmoothSubtraction(Shape a, Shape b, float k);
 Shape SmoothIntersection(Shape a, Shape b, float k);
 
-// Position and Scale
+// Extra Operations
 Shape Translate(vec3 p, Shape s);
 
-// Transformations
-Shape Displace(Shape a, vec3 p);
-Shape Twist(Shape a, vec3 p);
-Shape Bend(Shape a, vec3 p);
 
 void Scene(void)
 {
@@ -347,6 +372,7 @@ Shape Union(Shape a, Shape b)
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
 	}
+	shape.t = -1;
 	return shape;
 }
 Shape Subtraction(Shape a, Shape b)
@@ -364,6 +390,7 @@ Shape Subtraction(Shape a, Shape b)
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
 	}
+	shape.t = -1;
 	return shape;
 }
 Shape Intersection(Shape a, Shape b)
@@ -381,6 +408,7 @@ Shape Intersection(Shape a, Shape b)
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
 	}
+	shape.t = -1;
 	return shape;
 }
 
@@ -400,6 +428,7 @@ Shape SmoothUnion(Shape a, Shape b, float k)
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
 	}
+	shape.t = -1;
 	return shape;
 }
 Shape SmoothSubtraction(Shape a, Shape b, float k)
@@ -418,6 +447,7 @@ Shape SmoothSubtraction(Shape a, Shape b, float k)
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
 	}
+	shape.t = -1;
 	return shape;
 }
 Shape SmoothIntersection(Shape a, Shape b, float k)
@@ -436,6 +466,7 @@ Shape SmoothIntersection(Shape a, Shape b, float k)
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
 	}
+	shape.t = -1;
 	return shape;
 }
 
@@ -445,25 +476,6 @@ Shape Translate(vec3 p, Shape s)
 	shape.p = -p;
 	return shape;
 }
-
-Shape Displace(Shape a, vec3 p)
-{
-	// TODO: add custom pattern
-	float d = sin(20*p.x)*sin(20*p.y)*sin(20*p.z);
-	a.sd = sdf_shape(a) + d;
-	return a;
-}
-Shape Twist(Shape a, vec3 p)
-{
-	const float k = 12.21;
-	float c = cos(k*p.y);
-	float s = sin(k*p.y);
-	mat2  m = mat2(c,-s,s,c);
-	vec3  q = vec3(m*p.xz,p.y);
-	a.sd = sdf_shape(a) * q.x;
-	return a;
-}
-//Shape Bend(Shape a, vec3 p);
 
 /**********************************************************************
 ** prototypes
@@ -761,7 +773,9 @@ float soft_shadows(vec3 ro, vec3 rd, float light_dist)
 
 float sdf_shape(Shape shape)
 {
-	if (shape.t == 1) {
+	if (shape.t == -1) {
+		return shape.sd;
+	} else if (shape.t == 1) {
 		return sdf_sphere(scene_p_ + shape.p, shape.a.x);
 	} else if (shape.t == 2) {
 		return sdf_box(scene_p_ + shape.p, shape.a);
