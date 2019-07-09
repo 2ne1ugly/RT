@@ -77,16 +77,21 @@ Shape Octahedron(Material m, vec3 p, float s);  // 11
 Shape Triangle(Material m, vec3 p, vec3 a, vec3 b, vec3 c);  // 12
 Shape Quad(Material m, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
 
-// Operations
+// Base Operations
 Shape Union(Shape a, Shape b);
 Shape Subtraction(Shape a, Shape b);
 Shape Intersection(Shape a, Shape b);
-
 Shape SmoothUnion(Shape a, Shape b, float k);
 Shape SmoothSubtraction(Shape a, Shape b, float k);
 Shape SmoothIntersection(Shape a, Shape b, float k);
 
+// Position and Scale
 Shape Translate(vec3 p, Shape s);
+
+// Transformations
+Shape Displace(Shape a, vec3 p);
+Shape Twist(Shape a, vec3 p);
+Shape Bend(Shape a, vec3 p);
 
 void Scene(void)
 {
@@ -434,14 +439,31 @@ Shape SmoothIntersection(Shape a, Shape b, float k)
 	return shape;
 }
 
-
-
 Shape Translate(vec3 p, Shape s)
 {
 	Shape shape = s;
 	shape.p = -p;
 	return shape;
 }
+
+Shape Displace(Shape a, vec3 p)
+{
+	// TODO: add custom pattern
+	float d = sin(20*p.x)*sin(20*p.y)*sin(20*p.z);
+	a.sd = sdf_shape(a) + d;
+	return a;
+}
+Shape Twist(Shape a, vec3 p)
+{
+	const float k = 12.21;
+	float c = cos(k*p.y);
+	float s = sin(k*p.y);
+	mat2  m = mat2(c,-s,s,c);
+	vec3  q = vec3(m*p.xz,p.y);
+	a.sd = sdf_shape(a) * q.x;
+	return a;
+}
+//Shape Bend(Shape a, vec3 p);
 
 /**********************************************************************
 ** prototypes

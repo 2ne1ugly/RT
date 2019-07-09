@@ -1,0 +1,6 @@
+SmoothUnion (
+	Twist(Torus(red, vec3(sin(time.x),cos(time.y),cos(time.x)),vec2(1.,.5))
+		,vec3(1.))
+	,Torus(white, vec3(cos(time.x),sin(time.y),cos(time.x)), vec2(1.,.5))
+	,1.2);
+Light(white, vec3(4.2,5.,4.2));
