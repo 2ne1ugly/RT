@@ -56,7 +56,7 @@ const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
 const Material grey = Material(vec3(.5),vec3(0.5),0.,.5);
 const Material white = Material(vec3(1.),vec3(0.5),1.0,0.0);
 
-// 8,9,10,12
+// 10,12
 
 // Constructors
 void Light(Material m, vec3 p);
@@ -277,6 +277,15 @@ Shape Capsule(Material m, vec3 p, vec3 a, vec3 b, float r)
 	shape.c.x = r;
 	return shape;
 }
+Shape Ellipsoid(Material m, vec3 p, vec3 r)
+{
+	Shape shape;
+	shape.t = 10;
+	shape.m = m;
+	shape.p = -p;
+	shape.a = r;
+	return shape;
+}
 Shape Octahedron(Material m, vec3 p, float s)
 {
 	Shape shape;
@@ -389,6 +398,7 @@ float sdf_plane(vec3 p, vec4 n);  // 6
 float sdf_hex_prism(vec3 p, vec2 h);  // 7
 float sdf_tri_prism(vec3 p, vec2 h);  // 8
 float sdf_capsule(vec3 p, vec3 a, vec3 b, float r);  // 9
+float sdf_ellipsoid(vec3 p, vec3 r);  // 10
 float sdf_octahedron(vec3 p, float s);  // 11
 float udf_triangle(vec3 p, vec3 a, vec3 b, vec3 c);  // 12
 float udf_quad(vec3 p, vec3 a, vec3 b, vec3 c, vec3 d);  // 13
@@ -688,6 +698,8 @@ float sdf_shape(Shape shape)
 		return sdf_tri_prism(scene_p_ + shape.p, shape.a.xy);
 	} else if (shape.t == 9) {
 		return sdf_capsule(scene_p_ + shape.p, shape.a, shape.b, shape.c.x);
+	} else if (shape.t == 10) {
+		return sdf_ellipsoid(scene_p_ + shape.p, shape.a);
 	} else if (shape.t == 11) {
 		return sdf_octahedron(scene_p_ + shape.p, shape.a.x);
 	} else if (shape.t == 13) {
@@ -787,6 +799,12 @@ float sdf_capsule(vec3 p, vec3 a, vec3 b, float r)
 	vec3 pa = p - a, ba = b - a;
 	float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
 	return length(pa - ba*h) - r;
+}
+float sdf_ellipsoid(vec3 p, vec3 r)
+{
+	float k0 = length(p/r);
+	float k1 = length(p/(r*r));
+	return k0*(k0-1.0)/k1;
 }
 float sdf_octahedron(vec3 p, float s)
 {

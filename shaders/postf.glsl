@@ -246,6 +246,6 @@ void main()
 
     outColor = cartoon(outColor);
 
-	//outColor = sepia(outColor);
-
+    //outColor = sepia(inColor);
+	//outColor = fxaa();
 }
