@@ -6,7 +6,7 @@
 ** @macros
 **********************************************************************/
 
-#define saturate(x)        clamp(x, 0.0, 1.0)
+#define saturate(x) clamp(x, 0.0, 1.0)
 
 /**********************************************************************
 ** @uniforms
@@ -82,7 +82,10 @@ Shape Union(Shape a, Shape b);
 Shape Subtraction(Shape a, Shape b);
 Shape Intersection(Shape a, Shape b);
 
-// Other operations
+Shape SmoothUnion(Shape a, Shape b, float k);
+Shape SmoothSubtraction(Shape a, Shape b, float k);
+Shape SmoothIntersection(Shape a, Shape b, float k);
+
 Shape Translate(vec3 p, Shape s);
 
 void Scene(void)
@@ -375,6 +378,26 @@ Shape Intersection(Shape a, Shape b)
 	}
 	return shape;
 }
+
+Shape SmoothUnion(Shape a, Shape b, float k)
+{
+	Shape shape;
+	a.sd = sdf_shape(a);
+	b.sd = sdf_shape(b);
+	if (a.sd < b.sd) {
+		shape = a;
+	} else {
+		shape = b;
+	}
+	float h = clamp(0.5 + 0.5*(b.sd-a.sd)/k, 0.0, 1.0);
+	shape.sd = mix(b.sd,a.sd,h) - k*h*(1.0-h);
+	if (shape.sd < scene_sd_) {
+		scene_sd_ = shape.sd;
+		scene_m_ = shape.m;
+	}
+	return shape;
+}
+
 
 Shape Translate(vec3 p, Shape s)
 {
