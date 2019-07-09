@@ -295,6 +295,17 @@ Shape Octahedron(Material m, vec3 p, float s)
 	shape.a.x = s;
 	return shape;
 }
+Shape Triangle(Material m, vec3 p, vec3 a, vec3 b, vec3 c)
+{
+	Shape shape;
+	shape.t = 12;
+	shape.m = m;
+	shape.p = -p;
+	shape.a = a;
+	shape.b = b;
+	shape.c = c;
+	return shape;
+}
 Shape Quad(Material m, vec3 p, vec3 a, vec3 b, vec3 c, vec3 d)
 {
 	Shape shape;
@@ -696,6 +707,8 @@ float sdf_shape(Shape shape)
 		return sdf_ellipsoid(scene_p_ + shape.p, shape.a);
 	} else if (shape.t == 11) {
 		return sdf_octahedron(scene_p_ + shape.p, shape.a.x);
+	} else if (shape.t == 12) {
+		return udf_triangle(scene_p_ + shape.p, shape.a, shape.b, shape.c);
 	} else if (shape.t == 13) {
 		return udf_quad(scene_p_ + shape.p, shape.a, shape.b, shape.c, shape.d);
 	} else {
@@ -818,6 +831,23 @@ float sdf_octahedron(vec3 p, float s)
 	
 	float k = clamp(.5 * (q.z - q.y + s), 0., s);
 	return length(vec3(q.x, q.y - s + k, q.z - k));
+}
+float udf_triangle(vec3 p, vec3 a, vec3 b, vec3 c)
+{
+	vec3 ba = b - a; vec3 pa = p - a;
+	vec3 cb = c - b; vec3 pb = p - b;
+	vec3 ac = a - c; vec3 pc = p - c;
+	vec3 nor = cross( ba, ac );
+
+	return sqrt(
+			(sign(dot(cross(ba,nor),pa)) +
+			 sign(dot(cross(cb,nor),pb)) +
+			 sign(dot(cross(ac,nor),pc))<2.0)
+			? min(min(
+					dot2(ba*clamp(dot(ba,pa)/dot2(ba),0.0,1.0)-pa),
+					dot2(cb*clamp(dot(cb,pb)/dot2(cb),0.0,1.0)-pb)),
+				dot2(ac*clamp(dot(ac,pc)/dot2(ac),0.0,1.0)-pc))
+			: dot(nor,pa)*dot(nor,pa)/dot2(nor));
 }
 float udf_quad(vec3 p, vec3 a, vec3 b, vec3 c, vec3 d)
 {
