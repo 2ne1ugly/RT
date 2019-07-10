@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/15 15:14:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/10 02:02:34 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/10 04:06:32 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,13 +64,16 @@ typedef struct	s_gldata
 	GLint		mouse_id;
 	GLint		skybox_id;
 	GLint		render_sampler;
-	GLint		noise_sampler;
+	GLint		normal_sampler;
+	GLint		albedo_sampler;
 	GLint		pp_flags_id;
 	bool		fs0;
 	GLuint		framebuffer_id;
 	GLuint		target_texture;
 	GLuint		pp_fs_id;
 	GLuint		pp_program_id;
+	GLuint		normal_map;
+	GLuint		albedo_map;
 
 }				t_gldata;
 
@@ -161,7 +164,6 @@ typedef struct	s_uniforms
 	t_vec4		mouse;
 	bool		entered;
 	GLuint		skybox;
-	GLuint		noise;
 	int			save_screenshot;
 	int			pp_flag;
 }				t_uniforms;
@@ -211,4 +213,9 @@ void			load_noise(t_rt *rt);
 void			link_program(GLuint *program_out, GLuint vs_id, GLuint fs_id);
 void			init_pp(t_rt *rt);
 void			pp_uniform_update(t_rt *rt);
+
+void			parse_png(t_png *png);
+void			init_png(t_png *png, const char *path);
+
+void 			load_textures(t_rt *rt);
 #endif

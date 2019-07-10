@@ -81,7 +81,7 @@ Material textured(Material m)
 
 Material normaled(Material m)
 {
-	m.flag |= 3;
+	m.flag |= 4;
 	return m;
 }
 
@@ -880,14 +880,25 @@ float scene_sdf(vec3 p)
 
 vec3 get_normal(vec3 p, vec3 oo, Material m) {
 	vec2 e = vec2(1.0, -1.0) * EPSILON;
-	vec3 normal = normalize(
-		e.xyy * scene_sdf(p + e.xyy) +
-		e.yyx * scene_sdf(p + e.yyx) +
-		e.yxy * scene_sdf(p + e.yxy) +
-		e.xxx * scene_sdf(p + e.xxx));
+	vec3 oop = normalize(p - oo);
+	vec3 normal;
+	if ((m.flag & 4) == 4)
+	{
+		vec2 uv;
+		uv.x = atan(oop.z, oop.x) / (2 * PI) + 0.5;
+		uv.y = asin(oop.y) / PI + 0.5;
+		normal = normalize(texture(normalMap, uv).rgb);
+	}
+	else
+	{
+		normal = normalize(
+			e.xyy * scene_sdf(p + e.xyy) +
+			e.yyx * scene_sdf(p + e.yyx) +
+			e.yxy * scene_sdf(p + e.yxy) +
+			e.xxx * scene_sdf(p + e.xxx));
+	}
 	if ((m.flag & 1) == 1)
 	{
-		vec3 oop = normalize(p - oo);
 		vec3 axis = cross(oop, vec3(0, 0, 1));
 		normal += axis * sin(oop.x * 10);
 		normal = normalize(normal);
