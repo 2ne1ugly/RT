@@ -6,7 +6,7 @@
 /*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/09 17:40:06 by zfaria            #+#    #+#             */
-/*   Updated: 2019/07/09 19:17:29 by zfaria           ###   ########.fr       */
+/*   Updated: 2019/07/09 19:24:49 by zfaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ uint8_t		*get_raw_pixels(t_rt *rt)
 {
 	uint8_t	*pixels;
 
-	pixels = malloc(WID * HEI * 3);
+	pixels = malloc(WID * HEI * 4);
 	glBindTexture(GL_TEXTURE_2D, rt->gldata.target_texture);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, WID, HEI);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
