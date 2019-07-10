@@ -43,7 +43,7 @@
 [ ] Graphical waiting msg or Loading Bar (1pt)
 [ ] GUI (GTK) (1pt)
 [-] Live Modification (eye, colors) (1pt)
-[ ] Automatic Switching Scenes (1pt)
+[-] Automatic Switching Scenes (1pt)
 [ ] Automatic object creation (1pt)
 [-] Teamwork (1pt)
 [-] Cube Troue (1pt)
@@ -60,14 +60,13 @@
 
 easy:
 - video about project
-- automatic switching scenes
 - loading bar
 - multi-thread
 - loading skybox with library
 - checkerboard pattern
 
 
-31 / 61 points
+32 / 61 points
 mchi:
 	- motion blur
 	- ambient light
