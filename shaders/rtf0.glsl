@@ -645,6 +645,9 @@ vec3 ImportanceSampleGGX(vec2 Xi, float Roughness, vec3 N );
 vec4 CosineSampleHemisphere( vec2 E, vec3 N );
 vec2 Hammersley(uint Index, uint NumSamples, ivec2 Random);
 
+vec3 TangentToWorld(vec3 Vec, vec3 TangentZ);
+vec3 WorldToTangent(vec3 Vec, vec3 TangentZ);
+
 /**********************************************************************
 ** definitions
 **********************************************************************/
@@ -881,21 +884,18 @@ float scene_sdf(vec3 p)
 vec3 get_normal(vec3 p, vec3 oo, Material m) {
 	vec2 e = vec2(1.0, -1.0) * EPSILON;
 	vec3 oop = normalize(p - oo);
-	vec3 normal;
+	vec3 normal = normalize(
+			e.xyy * scene_sdf(p + e.xyy) +
+			e.yyx * scene_sdf(p + e.yyx) +
+			e.yxy * scene_sdf(p + e.yxy) +
+			e.xxx * scene_sdf(p + e.xxx));
 	if ((m.flag & 4) == 4)
 	{
 		vec2 uv;
 		uv.x = atan(oop.z, oop.x) / (2 * PI) + 0.5;
 		uv.y = asin(oop.y) / PI + 0.5;
-		normal = normalize(texture(normalMap, uv).rgb);
-	}
-	else
-	{
-		normal = normalize(
-			e.xyy * scene_sdf(p + e.xyy) +
-			e.yyx * scene_sdf(p + e.yyx) +
-			e.yxy * scene_sdf(p + e.yxy) +
-			e.xxx * scene_sdf(p + e.xxx));
+		normal = TangentToWorld(normal, texture(normalMap, uv).rgb);
+		normal = normalize(normal);
 	}
 	if ((m.flag & 1) == 1)
 	{
@@ -1290,5 +1290,28 @@ vec2 Hammersley( uint Index, uint NumSamples, ivec2 Random)
 	float E2 = float( bitfieldReverse(Index) ^ uint(Random.y)) * 2.3283064365386963e-10;
 	return vec2( E1, E2 );
 }
+
+mat3x3 GetTangentBasis(vec3 TangentZ )
+{
+	float Sign = TangentZ.z >= 0 ? 1 : -1;
+	float a = -1 / ( Sign + TangentZ.z );
+	float b = TangentZ.x * TangentZ.y * a;
+	
+	vec3 TangentX = vec3(1 + Sign * a * TangentZ.x * TangentZ.x, Sign * b, -Sign * TangentZ.x);
+	vec3 TangentY = vec3(b,  Sign + a * TangentZ.y * TangentZ.y, -TangentZ.y);
+
+	return mat3x3( TangentX, TangentY, TangentZ );
+}
+
+vec3 TangentToWorld(vec3 Vec, vec3 TangentZ )
+{
+	return Vec * GetTangentBasis( TangentZ );
+}
+
+vec3 WorldToTangent(vec3 Vec, vec3 TangentZ)
+{
+	return GetTangentBasis(TangentZ) * Vec;
+}
+
 
 #endif
