@@ -72,11 +72,12 @@ mchi:
 	- ambient light
 
 arherrer:
-	- table cloth
+	- multi-thread
 
 zfaria:
 	- loading bar
-	- multi-thread
+
 
 jcarpio-:
 	- scenes
+	- norminette
