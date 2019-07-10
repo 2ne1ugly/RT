@@ -20,7 +20,8 @@ uniform vec4 mouse;
 uniform float aspect;
 
 uniform samplerCube skybox;
-
+uniform sampler2D albedoMap;
+uniform sampler2D normalMap;
 /**********************************************************************
 ** scene's public data
 **********************************************************************/
@@ -68,7 +69,19 @@ Material sin_noise_()
 
 Material sinNormal(Material m)
 {
-	m.flag = 1;
+	m.flag |= 1;
+	return m;
+}
+
+Material textured(Material m)
+{
+	m.flag |= 2;
+	return m;
+}
+
+Material normaled(Material m)
+{
+	m.flag |= 3;
 	return m;
 }
 
@@ -582,14 +595,14 @@ Shape Cut(Shape s, vec4 p)
 **********************************************************************/
 
 float intersect(vec3 ro, vec3 rd, float max_dist);
-vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m);
+vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m, vec3 oo);
 float scene_sdf(vec3 p);
 Material scene_m(vec3 p);
 vec3 scene_o(vec3 p);
 float ambient_occlusion(vec3 p, vec3 n);
 float soft_shadows(vec3 ro, vec3 rd, float light_dist);
 vec3 get_normal(vec3 p, vec3 oo, Material m);
-
+vec3 get_texture(vec3 p, vec3 oo);
 float dot2(vec3 v) {return dot(v,v);}
 
 float sdf_light(vec3 p);  // 0
@@ -667,23 +680,25 @@ vec4 render()
 	vec3 p = ro + (rd * d);
 	Material m = scene_m(p);
 	vec3 object_origin = scene_o(p);
-	vec3 kd = m.kd;  // TODO: fix to use pbr
-	vec3 ks = m.ks;
 	//common values
 	vec3 v = -rd;
 	vec3 n = get_normal(p, object_origin, m);
 	vec3 r = normalize(-reflect(v,n));
 	float roughness = clamp(m.roughness, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
-	vec3 diffuseColor = kd * (1.0 - m.metallic);
-	vec3 specularColor = m.ks;
-	vec3 spec = get_shading(v, n, p, m);
+	vec3 spec = get_shading(v, n, p, m, object_origin);
 	float dotrv = dot(r, v);
 	float dotnv = dot(n, v);
+
+	vec3 diffuseColor = m.kd;
+	if ((m.flag & 2) == 2)
+		diffuseColor = get_texture(p, object_origin);
+	diffuseColor *= (1.0 - m.metallic);
+	vec3 specularColor = m.ks;
 
 	//monte carlo integration for global illumination. only skybox for now.
 	//replace texture(skybox, l).rgb to actual color calculation.
 	//possibly replace randomness to hammersley
-	// specular term
+	//specular term
 	{
 		const int nSample = 4;
 		vec3 sampled = vec3(0);
@@ -704,14 +719,14 @@ vec4 render()
 				vec3 ln = get_normal(lp, oo, lm);
 				//lp += ln * EPSILON;
 				vec3 lv = -l;
-				k = get_shading(lv, ln, lp, lm);
+				k = get_shading(lv, ln, lp, lm, oo);
 			}
 			sampled += brdfSpec * k * saturate(dotln);
 		}
 		spec += sampled / nSample;
 	}
 
-	// diffuse term
+	//diffuse term
 	{
 		const uint nSample = 4;
 		vec3 sampled = vec3(0);
@@ -737,7 +752,7 @@ vec4 render()
 				//lp += ln * EPSILON;
 				vec3 lv = -l;
 				//k = lm.kd;
-				k = get_shading(lv, ln, lp, lm);
+				k = get_shading(lv, ln, lp, lm, oo);
 			}
 			sampled += brdfDiff * k * saturate(dotln);
 			//samplePoint = texture(noise, samplePoint.zw);
@@ -780,15 +795,18 @@ float intersect(vec3 ro, vec3 rd, float max_dist)
 	return t;
 }
 
-vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m)
+vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m, vec3 oo)
 {
 	vec3 r = normalize(-reflect(v,n));
 	float dotrv = dot(r, v);
 	float dotnv = dot(n, v);
-	vec3 diffuseColor = m.kd * (1.0 - m.metallic);
-	vec3 specularColor = m.ks;
 	float roughness = clamp(m.roughness, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
 	vec3 spec = vec3(0.);
+	vec3 diffuseColor = m.kd;
+	if ((m.flag & 2) == 2)
+		diffuseColor = get_texture(p, oo);
+	diffuseColor *= (1.0 - m.metallic);
+	vec3 specularColor = m.ks;
 	// Go through local lights
 	for (int i = 0; i < light_count; ++i) {
 		Light_ light = lights[i];
@@ -875,6 +893,14 @@ vec3 get_normal(vec3 p, vec3 oo, Material m) {
 		normal = normalize(normal);
 	}
 	return normal;
+}
+
+vec3 get_texture(vec3 p, vec3 oo) {
+	vec3 oop = p - oo;
+	vec2 uv;
+	uv.x = atan(oop.z, oop.x) / (2 * PI) + 0.5;
+	uv.y = asin(oop.y) / PI + 0.5;
+	return texture(albedoMap, uv).rgb;
 }
 
 Material scene_m(vec3 p)

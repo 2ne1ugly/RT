@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:15:42 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/09 19:44:17 by zfaria           ###   ########.fr       */
+/*   Updated: 2019/07/10 03:46:14 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,15 +30,19 @@ static void	rt_getuniforms(t_gldata *gldata)
 	gldata->skybox_id = glGetUniformLocation(gldata->program_id, "skybox");
 	gldata->render_sampler =
 		glGetUniformLocation(gldata->pp_program_id, "renderedTexture");
+	gldata->albedo_sampler
+		= glGetUniformLocation(gldata->program_id, "albedoMap");
+	gldata->normal_sampler
+	 	= glGetUniformLocation(gldata->program_id, "normalMap");
 	gldata->pp_flags_id = glGetUniformLocation(gldata->pp_program_id, "flag");
 	if (gldata->ray_origin_id == -1 || gldata->rot_id == -1 ||
 		gldata->aspect_id == -1 || gldata->time_id == -1 ||
 		gldata->mouse_id == -1 || gldata->skybox_id == -1 ||
-		gldata->render_sampler == -1 || gldata->pp_flags_id == -1)
+		gldata->render_sampler == -1 || gldata->pp_flags_id == -1 ||
+		/*gldata->normal_sampler == -1 ||*/ gldata->albedo_sampler == -1)
 		panic("shader was corrupt");
 }
 
-//fix binding problem.
 static void	rt_uniforms_init(t_rt *rt, t_uniforms *uniforms)
 {
 	int	width;
@@ -52,14 +56,14 @@ static void	rt_uniforms_init(t_rt *rt, t_uniforms *uniforms)
 	uniforms->time.x = glfwGetTime();
 	uniforms->skybox = load_skybox(rt);
 	uniforms->pp_flag = 0;
+	load_albedo(rt);
 	glUseProgram(rt->gldata.program_id);
 	glUniform1i(rt->gldata.skybox_id, 1);
-	glUniform1i(rt->gldata.noise_sampler, 0);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, uniforms->skybox);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, uniforms->noise);
-
+	glUniform1i(rt->gldata.albedo_sampler, 3);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, rt->gldata.albedo_map);
 }
 
 t_rt		*init(t_rt *rt, const char *path)

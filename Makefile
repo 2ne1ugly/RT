@@ -6,7 +6,7 @@
 #    By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/04/29 15:17:56 by arherrer          #+#    #+#              #
-#    Updated: 2019/07/10 01:02:29 by mchi             ###   ########.fr        #
+#    Updated: 2019/07/10 03:06:48 by mchi             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ LIBS := \
 	-L ./libft/ -lft \
 	-L ./lib/libpng-1.6.37/ -lpng
 name := RT
-src := $(addprefix ./src/, callback.c init.c load_glsl.c load_scene.c loop.c main.c make_window.c load_skybox.c post_process.c images.c)
+src := $(addprefix ./src/, callback.c init.c load_glsl.c load_scene.c loop.c main.c make_window.c load_skybox.c post_process.c images.c load_texture.c)
 obj := $(src:.c=.o)
 
 .PHONY: all clean fclean re

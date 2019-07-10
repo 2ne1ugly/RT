@@ -19,8 +19,8 @@
 [ ] use of refractive index (1pt)
 [ ] Change of transparency % (1pt)
 [ ] Shadows through transparency (1pt)
-[ ] Application of textures on at least 1 object (1pt)
-[ ] Application of textures on 4 objects (1pt)
+[-] Application of textures on at least 1 object (1pt)
+[-] Application of textures on 4 objects (1pt)
 [ ] Texture Stretch (1pt)
 [ ] Texture Shift (1pt)
 [-] Using a library to load Textures (1pt)
@@ -66,7 +66,7 @@ easy:
 - checkerboard pattern
 
 
-33 / 61 points
+35 / 61 points
 mchi:
 	- motion blur
 	- ambient light
