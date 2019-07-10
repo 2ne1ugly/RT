@@ -46,7 +46,7 @@
 [ ] Automatic Switching Scenes (1pt)
 [ ] Automatic object creation (1pt)
 [*] Teamwork (1pt)
-[ ] Cube Troue (1pt)
+[*] Cube Troue (1pt)
 [ ] Table Cloth (1pt)
 [ ] Tower (1pt)
 [ ] Custom Distance Functions (1pt)
@@ -65,7 +65,6 @@ mchi:
 	- ambient light
 
 arherrer:
-	- twisted cube?
 	- table cloth
 	- cuts
 
