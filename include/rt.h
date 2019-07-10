@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/15 15:14:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/10 16:01:45 by arherrer         ###   ########.fr       */
+/*   Updated: 2019/07/10 16:41:38 by arherrer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,18 +114,6 @@ typedef struct	s_material
 	t_vec4		emission;
 }				t_material;
 
-typedef struct	s_tga
-{
-	unsigned char	type_code;
-	short			width;
-	short			height;
-	unsigned char	bit_count;
-	unsigned char	*data;
-	long			size;
-	int				color_mode;
-	unsigned char	color_swap;
-}				t_tga;
-
 typedef struct	s_png
 {
 	FILE			*fp;
@@ -138,7 +126,7 @@ typedef struct	s_png
 	int				row_bytes;
 	int				interlace_type;
 	unsigned char	*data;
-	png_bytepp	rows;
+	png_bytepp		rows;
 }				t_png;
 
 typedef struct	s_object
@@ -225,5 +213,6 @@ void			pp_uniform_update(t_rt *rt);
 void			parse_png(t_png *png);
 void			init_png(t_png *png, const char *path);
 
-void 			load_textures(t_rt *rt);
+void			load_textures(t_rt *rt);
+
 #endif
