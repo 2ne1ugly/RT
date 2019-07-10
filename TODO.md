@@ -54,14 +54,13 @@
 [ ] Video about this project RT (1pt)
 [ ] Model Loading (1pt)
 [ ] OculusRift 3D mode (1 pt)
-[ ] Lights that are not dots (Area lights) (1pt)
+[-] Lights that are not dots (Area lights) (1pt)
 [ ] Mobius Strip (1pt)
 [-] Global Illumination / Caustics (1pt)
 
-29 / 61 points
+30 / 61 points
 mchi:
 	- motion blur
-	- area lights
 	- ambient light
 
 arherrer:
@@ -70,7 +69,6 @@ arherrer:
 zfaria:
 	- loading bar
 	- multi-thread
-	- saving as image
 
 jcarpio-:
 	- scenes

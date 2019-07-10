@@ -115,6 +115,7 @@ Material perlin_noise = perlin_noise_();
 
 // Constructors
 void Light(Material m, vec3 p);
+void AreaLight(Material m, vec3 p);
 void DirectLight(Material m, vec3 p);
 Shape Null(void);  // 0
 Shape Sphere(Material m, vec3 p, float s);  // 1
@@ -225,10 +226,21 @@ void Light(Material m, vec3 p)
 	}
 }
 
+void AreaLight(Material m, vec3 p)
+{
+	Light(m, vec3(p.x-.5,p.y-.5,p.z-.5));
+	Light(m, vec3(p.x+.5,p.y-.5,p.z-.5));
+	Light(m, vec3(p.x-.5,p.y+.5,p.z-.5));
+	Light(m, vec3(p.x+.5,p.y+.5,p.z-.5));
+	Light(m, vec3(p.x-.5,p.y-.5,p.z+.5));
+	Light(m, vec3(p.x+.5,p.y-.5,p.z+.5));
+	Light(m, vec3(p.x-.5,p.y+.5,p.z+.5));
+	Light(m, vec3(p.x+.5,p.y+.5,p.z+.5));
+}
+
 void DirectLight(Material m, vec3 p)
 {
 	Light_ light = Light_(m, p);
-	//light.p = normalize(light.p);
 	if (direct_light_count < MAX_LIGHTS) {
 		direct_lights[direct_light_count] = light;
 		++direct_light_count;
