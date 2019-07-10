@@ -228,14 +228,14 @@ void Light(Material m, vec3 p)
 
 void AreaLight(Material m, vec3 p)
 {
-	Light(m, vec3(p.x-.5,p.y-.5,p.z-.5));
-	Light(m, vec3(p.x+.5,p.y-.5,p.z-.5));
-	Light(m, vec3(p.x-.5,p.y+.5,p.z-.5));
-	Light(m, vec3(p.x+.5,p.y+.5,p.z-.5));
-	Light(m, vec3(p.x-.5,p.y-.5,p.z+.5));
-	Light(m, vec3(p.x+.5,p.y-.5,p.z+.5));
-	Light(m, vec3(p.x-.5,p.y+.5,p.z+.5));
-	Light(m, vec3(p.x+.5,p.y+.5,p.z+.5));
+	Light(m, vec3(p.x-.25,p.y-.25,p.z-.25));
+	Light(m, vec3(p.x+.25,p.y-.25,p.z-.25));
+	Light(m, vec3(p.x-.25,p.y+.25,p.z-.25));
+	Light(m, vec3(p.x+.25,p.y+.25,p.z-.25));
+	Light(m, vec3(p.x-.25,p.y-.25,p.z+.25));
+	Light(m, vec3(p.x+.25,p.y-.25,p.z+.25));
+	Light(m, vec3(p.x-.25,p.y+.25,p.z+.25));
+	Light(m, vec3(p.x+.25,p.y+.25,p.z+.25));
 }
 
 void DirectLight(Material m, vec3 p)
