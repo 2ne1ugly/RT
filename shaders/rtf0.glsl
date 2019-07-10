@@ -137,6 +137,7 @@ Shape Translate(vec3 p, Shape s);
 Shape CutX(Shape s);
 Shape CutY(Shape s);
 Shape CutZ(Shape s);
+Shape Cut(Shape s, vec4 p);
 
 
 void Scene(void)
@@ -518,6 +519,10 @@ Shape CutY(Shape s)
 Shape CutZ(Shape s)
 {
 	return Intersection(Plane(black, s.p+vec3(0.,0.,1.), vec4(0.,0.,.5,.5)),s);
+}
+Shape Cut(Shape s, vec4 p)
+{
+	return Intersection(s, Plane(black, s.p, p));
 }
 
 /**********************************************************************

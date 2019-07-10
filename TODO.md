@@ -5,8 +5,8 @@
 [ ] cut objects through x,y,z (1pt)
 [ ] cut object by position (1pt)
 [-] rotation and translation after cuts (1pt)
-[ ] unique cuts for all objects (1pt)
-[ ] arbitary cuts (1pt)
+[-] unique cuts for all objects (1pt)
+[-] arbitary cuts (1pt)
 [ ] sin noise on normal (1pt)
 [ ] checkerboard pattern on color (1pt)
 [-] algorithm to change object's color (sandbox) (1pt)
@@ -66,7 +66,6 @@ mchi:
 
 arherrer:
 	- table cloth
-	- cuts
 
 zfaria:
 	- loading bar
