@@ -37,10 +37,10 @@
 [-] Sepia (1pt)
 [ ] Stereo Display (red/blue) (1pt)
 [ ] Cluster computing (2pt)
-[ ] Multi-thread (1pt)
+[-] Multi-thread (1pt)
 [-] It is fast (1pt)
 [-] Saving as an image (1pt)
-[ ] Graphical waiting msg or Loading Bar (1pt)
+[-] Graphical waiting msg or Loading Bar (1pt)
 [ ] GUI (GTK) (1pt)
 [-] Live Modification (eye, colors) (1pt)
 [-] Automatic Switching Scenes (1pt)
@@ -66,7 +66,7 @@ easy:
 - checkerboard pattern
 
 
-36 / 61 points
+38 / 61 points
 mchi:
 	- motion blur
 	- ambient light

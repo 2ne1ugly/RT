@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   loop.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:13:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/09 19:17:56 by zfaria           ###   ########.fr       */
+/*   Updated: 2019/07/10 16:02:11 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ void		post_render(t_rt *rt)
 
 void		loop(t_rt *rt)
 {
+	post_render(rt);
+	glfwSwapBuffers(rt->gldata.window);
 	while ((glfwGetKey(rt->gldata.window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
 		&& (!glfwWindowShouldClose(rt->gldata.window)))
 	{

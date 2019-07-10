@@ -3,21 +3,35 @@
 /*                                                        :::      ::::::::   */
 /*   post_process.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 21:24:39 by mchi              #+#    #+#             */
-/*   Updated: 2019/07/09 20:21:13 by zfaria           ###   ########.fr       */
+/*   Updated: 2019/07/10 16:02:40 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/rt.h"
 
+static unsigned char *init_waiting()
+{
+	t_png png;
+
+	init_png(&png, "resources/loading.png");
+	parse_png(&png);
+	if (png.width != RT_WIDTH * 2 || png.height != RT_HEIGHT * 2)
+		panic("invalid png");
+	return (png.data);
+}
+
 static void	init_pp_framebuffer(t_rt *rt)
 {
+	unsigned char *data;
+
+	data = init_waiting();
 	glGenTextures(1, &rt->gldata.target_texture);
 	glBindTexture(GL_TEXTURE_2D, rt->gldata.target_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, RT_WIDTH * 2, RT_HEIGHT * 2,
-		0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -29,6 +43,7 @@ static void	init_pp_framebuffer(t_rt *rt)
 		rt->gldata.target_texture, 0);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		panic("post processing initializing failed!");
+	free(data);
 }
 
 static void init_pp_shader(t_rt *rt)
