@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rt.h                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/15 15:14:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/06/26 23:24:29 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/09 18:08:15 by zfaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # include "../lib/glew-2.1.0/include/GL/glew.h"
 # include "../lib/glfw-3.2.1/include/GLFW/glfw3.h"
 # include "../libft/libft.h"
+# include "../lib/libpng-1.6.37/png.h"
 
 # define RT_RETINA
 
@@ -147,6 +148,16 @@ typedef struct	s_uniforms
 	GLuint		noise;
 }				t_uniforms;
 
+typedef struct	s_image
+{
+	png_structp	png;
+	png_infop	info;
+	FILE		*fp;
+	png_colorp	palette;
+	png_bytepp	rows;
+	uint8_t		*pixels;
+}				t_image;
+
 # define RT_GLSL_VERSION "#version 410"
 # define RT_SCENE_SIZE 4096
 # define RT_BUFFER_SIZE 65535
@@ -172,6 +183,7 @@ GLuint			load_skybox(t_rt *rt);
 t_rt			*init(t_rt *rt, const char *path);
 void			loop(t_rt *rt);
 void			panic(const char *msg);
+void			save_image(t_rt *rt);
 
 void			make_window(t_gldata *gldata);
 void			load_glsl(char *buf, t_gldata *gldata);
