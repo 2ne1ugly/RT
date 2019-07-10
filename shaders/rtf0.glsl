@@ -134,6 +134,9 @@ Shape SmoothIntersection(Shape a, Shape b, float k);
 
 // Extra Operations
 Shape Translate(vec3 p, Shape s);
+Shape CutX(Shape s);
+Shape CutY(Shape s);
+Shape CutZ(Shape s);
 
 
 void Scene(void)
@@ -501,6 +504,20 @@ Shape Translate(vec3 p, Shape s)
 	Shape shape = s;
 	shape.p = -p;
 	return shape;
+}
+Shape CutX(Shape s)
+{
+	return Intersection(s,
+		Plane(black, s.p, vec4(0.,.5,0.,0.)));
+}
+Shape CutY(Shape s)
+{
+	return Intersection(s,
+		Plane(black, s.p, vec4(.5,0.,0.,0.)));
+}
+Shape CutZ(Shape s)
+{
+	return Intersection(Plane(black, s.p+vec3(0.,0.,1.), vec4(0.,0.,.5,.5)),s);
 }
 
 /**********************************************************************

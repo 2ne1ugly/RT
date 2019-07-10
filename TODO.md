@@ -39,7 +39,7 @@
 [ ] Cluster computing (2pt)
 [ ] Multi-thread (1pt)
 [-] It is fast (1pt)
-[ ] Saving as an image (1pt)
+[-] Saving as an image (1pt)
 [ ] Graphical waiting msg or Loading Bar (1pt)
 [ ] GUI (GTK) (1pt)
 [-] Live Modification (eye, colors) (1pt)
@@ -58,7 +58,7 @@
 [ ] Mobius Strip (1pt)
 [-] Global Illumination / Caustics (1pt)
 [ ] post-processing flags (uniforms) (1pt)
-18 / 62 points
+21 / 62 points
 mchi:
 	- motion blur
 	- area lights
