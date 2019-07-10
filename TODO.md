@@ -64,12 +64,9 @@ easy:
 
 39 / 61 points
 mchi:
-	- motion blur
 
 arherrer:
 
 zfaria:
 
 jcarpio-:
-	- scenes
-	- norminette
