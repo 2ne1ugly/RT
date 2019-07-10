@@ -58,7 +58,7 @@
 [ ] Mobius Strip (1pt)
 [-] Global Illumination / Caustics (1pt)
 
-21 / 62 points
+27 / 61 points
 mchi:
 	- motion blur
 	- area lights
