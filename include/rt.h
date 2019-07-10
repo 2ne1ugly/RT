@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/15 15:14:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/10 04:06:32 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/10 16:01:45 by arherrer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,14 @@
 # define RT_VS "./shaders/rtv.glsl"
 # define RT_FS0 "./shaders/rtf0.glsl"
 # define RT_POST_FS "./shaders/postf.glsl"
+
+typedef struct	s_tot
+{
+	char		*buf;
+	size_t		siz;
+	const char	*path;
+	char		**ptr;
+}				t_tot;
 
 typedef struct	s_gldata
 {

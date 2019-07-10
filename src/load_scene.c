@@ -6,10 +6,11 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/22 21:07:26 by arherrer          #+#    #+#             */
-/*   Updated: 2019/06/02 23:13:24 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/10 16:01:44 by arherrer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <pthread.h>
 #include "../include/rt.h"
 
 char		*read_file(char *buf, int siz, const char *path)
@@ -54,18 +55,36 @@ static char	*concat(char *buf, char *const src[5])
 
 #include <stdio.h>
 
+void		*read_file_(void *t_)
+{
+	t_tot	*t = t_;
+	*(t->ptr) = read_file(t->buf, t->siz, t->path);
+	return NULL;
+}
+
+void		load_files(t_rt *rt, char **fshader_src, const char *path)
+{
+	pthread_t	ts[2];
+
+	fshader_src[0] = RT_GLSL_VERSION "\n\n";
+	fshader_src[1] = "#define SCENE \\ \n";
+	fshader_src[3] = "\n";
+
+	pthread_create(&ts[0], 0, read_file_,
+		&(t_tot){rt->scene_buffer, RT_SCENE_SIZE, path, &fshader_src[2]});
+	pthread_create(&ts[0], 0, read_file_,
+		&(t_tot){rt->buffer, RT_BUFFER_SIZE, RT_FS0, &fshader_src[4]});
+	pthread_join(ts[0], 0);
+	pthread_join(ts[1], 0);
+}
+
 void		load_scene(t_rt *rt, const char *path)
 {
 	GLint				loglen;
 	const char *const	ptr = rt->buffer;
-	char *const			fshader_src[] = {
-		RT_GLSL_VERSION "\n\n",
-		"#define SCENE \\ \n",
-		read_file(rt->scene_buffer, RT_SCENE_SIZE, path),
-		"\n",
-		read_file(rt->buffer, RT_BUFFER_SIZE, RT_FS0),
-	};
+	char				*fshader_src[5];
 
+	load_files(rt, fshader_src, path);
 	concat(rt->buffer, fshader_src);
 	rt->gldata.fs0_id = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(rt->gldata.fs0_id, 1, &ptr, 0);
@@ -74,8 +93,10 @@ void		load_scene(t_rt *rt, const char *path)
 	glGetShaderiv(rt->gldata.fs0_id, GL_INFO_LOG_LENGTH, &loglen);
 	if (loglen > 0)
 	{
-		char str[10000];
+		// TODO: make this an outer function
+		static char str[10000];
 		glGetShaderInfoLog(rt->gldata.fs0_id, 10000, &loglen, str);
+		// TODO: dont use printf
 		printf("%s\n", str);
 		panic("scene was corrupt");
 	}
