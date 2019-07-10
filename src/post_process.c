@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   post_process.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 21:24:39 by mchi              #+#    #+#             */
-/*   Updated: 2019/07/07 20:36:32 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/09 20:21:13 by zfaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ void		pp_uniform_update(t_rt *rt)
 	glActiveTexture(GL_TEXTURE2);
 	glUniform1i(rt->gldata.render_sampler, 2);
 	glBindTexture(GL_TEXTURE_2D, rt->gldata.target_texture);
+	glUniform1i(rt->gldata.pp_flags_id, rt->uniforms.pp_flag);
 }
 
 void		init_pp(t_rt *rt)

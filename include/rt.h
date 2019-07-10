@@ -6,7 +6,7 @@
 /*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/15 15:14:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/09 18:15:40 by zfaria           ###   ########.fr       */
+/*   Updated: 2019/07/09 19:44:01 by zfaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ typedef struct	s_gldata
 	GLint		skybox_id;
 	GLint		render_sampler;
 	GLint		noise_sampler;
+	GLint		pp_flags_id;
 	bool		fs0;
 	GLuint		framebuffer_id;
 	GLuint		target_texture;
@@ -147,6 +148,7 @@ typedef struct	s_uniforms
 	GLuint		skybox;
 	GLuint		noise;
 	int			save_screenshot;
+	int			pp_flag;
 }				t_uniforms;
 
 typedef struct	s_image

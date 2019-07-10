@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:15:42 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/09 19:25:55 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/09 19:44:17 by zfaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,11 @@ static void	rt_getuniforms(t_gldata *gldata)
 	gldata->skybox_id = glGetUniformLocation(gldata->program_id, "skybox");
 	gldata->render_sampler =
 		glGetUniformLocation(gldata->pp_program_id, "renderedTexture");
+	gldata->pp_flags_id = glGetUniformLocation(gldata->pp_program_id, "flag");
 	if (gldata->ray_origin_id == -1 || gldata->rot_id == -1 ||
 		gldata->aspect_id == -1 || gldata->time_id == -1 ||
 		gldata->mouse_id == -1 || gldata->skybox_id == -1 ||
-		gldata->render_sampler == -1)
+		gldata->render_sampler == -1 || gldata->pp_flags_id == -1)
 		panic("shader was corrupt");
 }
 
@@ -50,6 +51,7 @@ static void	rt_uniforms_init(t_rt *rt, t_uniforms *uniforms)
 	uniforms->time.y = glfwGetTime();
 	uniforms->time.x = glfwGetTime();
 	uniforms->skybox = load_skybox(rt);
+	uniforms->pp_flag = 0;
 	glUseProgram(rt->gldata.program_id);
 	glUniform1i(rt->gldata.skybox_id, 1);
 	glUniform1i(rt->gldata.noise_sampler, 0);

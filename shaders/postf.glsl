@@ -2,6 +2,7 @@
 
 
 uniform sampler2D   renderedTexture;
+uniform int			flag;
 in   vec2 vertexPassThrough;
 out  vec4 outColor;
 
@@ -13,7 +14,6 @@ out  vec4 outColor;
 float[HueLevCount] HueLevels = float[] (0.0,140.0,160.0,240.0,240.0,360.0);
 float[SatLevCount] SatLevels = float[] (0.0,0.15,0.3,0.45,0.6,0.8,1.0);
 float[ValLevCount] ValLevels = float[] (0.0,0.3,0.6,1.0);
-
 
 vec3 RGBtoHSV( float r, float g, float b) 
 {
@@ -242,10 +242,10 @@ void main()
 	vec2 texCoord = vertexPassThrough * 0.5 + 0.5;
     outColor = texture(renderedTexture, texCoord);
 
-    //outColor = fxaa();
-
-    //outColor = cartoon(outColor);
-
-    //outColor = sepia(inColor);
-	//outColor = fxaa();
+	if ((flag & 1) == 1)
+		outColor = fxaa();
+	if ((flag & 2) == 2)
+		outColor = cartoon(outColor);
+	if ((flag & 4) == 4)
+		outColor = sepia(outColor);
 }

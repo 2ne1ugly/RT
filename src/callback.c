@@ -6,7 +6,7 @@
 /*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:43:41 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/09 18:17:32 by zfaria           ###   ########.fr       */
+/*   Updated: 2019/07/09 20:36:32 by zfaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ static void	rt_char_cb(GLFWwindow *window, unsigned int codepoint)
 	rt_char_cb_(window, &rt->uniforms);
 	if ((glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS))
 		rt->uniforms.save_screenshot = 1;
+	
+	
 }
 
 static void	rt_cursor_pos_cb(GLFWwindow *window, double xpos, double ypos)
@@ -69,10 +71,25 @@ static void	rt_cursor_enter_cb(GLFWwindow *window, int entered)
 	rt->uniforms.entered = entered;
 }
 
+static void rt_key_cb(GLFWwindow* window, int key, int scancode, int action)
+{
+	t_rt *const	rt = glfwGetWindowUserPointer(window);
+	(void)scancode;
+
+	if (key == GLFW_KEY_1 && action == GLFW_PRESS)
+		rt->uniforms.pp_flag ^= 1;
+	else if (key == GLFW_KEY_2 && action == GLFW_PRESS)
+		rt->uniforms.pp_flag ^= 2;
+	else if (key == GLFW_KEY_3 && action == GLFW_PRESS)
+		rt->uniforms.pp_flag ^= 4;
+}
+
 void		init_callbacks(t_rt *rt)
 {
 	glfwSetWindowUserPointer(rt->gldata.window, rt);
 	glfwSetCharCallback(rt->gldata.window, rt_char_cb);
+	glfwSetKeyCallback(rt->gldata.window,
+		(void (*)(struct GLFWwindow *, int, int, int, int))rt_key_cb);
 	glfwSetCursorPosCallback(rt->gldata.window, rt_cursor_pos_cb);
 	glfwSetCursorEnterCallback(rt->gldata.window, rt_cursor_enter_cb);
 }
