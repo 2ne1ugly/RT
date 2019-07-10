@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:15:42 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/08 18:14:46 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/09 19:25:55 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ static void	rt_getuniforms(t_gldata *gldata)
 	gldata->time_id = glGetUniformLocation(gldata->program_id, "time");
 	gldata->mouse_id = glGetUniformLocation(gldata->program_id, "mouse");
 	gldata->skybox_id = glGetUniformLocation(gldata->program_id, "skybox");
-	gldata->noise_sampler = glGetUniformLocation(gldata->program_id, "noise");
 	gldata->render_sampler =
 		glGetUniformLocation(gldata->pp_program_id, "renderedTexture");
 	if (gldata->ray_origin_id == -1 || gldata->rot_id == -1 ||
@@ -66,7 +65,6 @@ t_rt		*init(t_rt *rt, const char *path)
 	rt_gldata_init(rt->buffer, rt, path);
 	init_callbacks(rt);
 	init_pp(rt);
-	load_noise(rt);
 	rt_getuniforms(&rt->gldata);
 	rt_uniforms_init(rt, &rt->uniforms);
 	return (rt);

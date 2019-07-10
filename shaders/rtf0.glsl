@@ -20,7 +20,6 @@ uniform vec4 mouse;
 uniform float aspect;
 
 uniform samplerCube skybox;
-uniform sampler2D noise;
 
 /**********************************************************************
 ** scene's public data
