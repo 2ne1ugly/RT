@@ -1,0 +1,1 @@
+/Library/Developer/CommandLineTools/usr/bin/cc  -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/pngunknown.dir/contrib/libtests/pngunknown.c.o  -o pngunknown -Wl,-rpath,/nfs/2018/z/zfaria/Desktop/projects/rt/lib/libpng-1.6.37 libpng16.16.37.0.dylib /usr/lib/libz.dylib 
