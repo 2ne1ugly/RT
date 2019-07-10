@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+         #
+#    By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/04/29 15:17:56 by arherrer          #+#    #+#              #
-#    Updated: 2019/07/09 17:52:28 by zfaria           ###   ########.fr        #
+#    Updated: 2019/07/10 01:02:29 by mchi             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ LIBS := \
 	-L ./libft/ -lft \
 	-L ./lib/libpng-1.6.37/ -lpng
 name := RT
-src := $(addprefix ./src/, callback.c init.c load_glsl.c load_scene.c loop.c main.c make_window.c load_skybox.c post_process.c load_noise.c images.c)
+src := $(addprefix ./src/, callback.c init.c load_glsl.c load_scene.c loop.c main.c make_window.c load_skybox.c post_process.c images.c)
 obj := $(src:.c=.o)
 
 .PHONY: all clean fclean re
