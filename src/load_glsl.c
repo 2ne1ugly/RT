@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:40:31 by arherrer          #+#    #+#             */
-/*   Updated: 2019/06/20 16:21:12 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/10 16:33:31 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 
-void	load_shader(char *buf, GLuint *shader_id,
+void		load_shader(char *buf, GLuint *shader_id,
 	GLenum shader_type, const char *path)
 {
 	const GLchar *const	ptr = buf;
@@ -33,17 +33,10 @@ void	load_shader(char *buf, GLuint *shader_id,
 	glGetShaderiv(*shader_id, GL_COMPILE_STATUS, (GLint[]){0});
 	glGetShaderiv(*shader_id, GL_INFO_LOG_LENGTH, &loglen);
 	if (loglen > 0)
-	{
-		char str[10000];
-		glGetShaderInfoLog(*shader_id, 10000, &loglen, str);
-		printf("%s\n", str);
 		panic("vector shader was corrupt");
-	}
 	if (close(fd) == -1)
 		panic(strerror(errno));
 }
-
-#include <stdio.h>
 
 void		link_program(GLuint *program_out, GLuint vs_id, GLuint fs_id)
 {
@@ -56,12 +49,7 @@ void		link_program(GLuint *program_out, GLuint vs_id, GLuint fs_id)
 	glGetProgramiv(*program_out, GL_LINK_STATUS, (GLint[]){0});
 	glGetProgramiv(*program_out, GL_INFO_LOG_LENGTH, &loglen);
 	if (loglen > 0)
-	{
-		char str[10000];
-		glGetProgramInfoLog(*program_out, 10000, &loglen, str);
-		printf("%s", str);
 		panic("GLSL program was corrupt");
-	}
 	glDetachShader(*program_out, vs_id);
 	glDetachShader(*program_out, fs_id);
 }

@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/22 21:07:26 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/10 16:01:44 by arherrer         ###   ########.fr       */
+/*   Updated: 2019/07/10 16:35:06 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,13 +53,13 @@ static char	*concat(char *buf, char *const src[5])
 	return (buf);
 }
 
-#include <stdio.h>
-
 void		*read_file_(void *t_)
 {
-	t_tot	*t = t_;
+	t_tot	*t;
+
+	t = t_;
 	*(t->ptr) = read_file(t->buf, t->siz, t->path);
-	return NULL;
+	return (NULL);
 }
 
 void		load_files(t_rt *rt, char **fshader_src, const char *path)
@@ -69,7 +69,6 @@ void		load_files(t_rt *rt, char **fshader_src, const char *path)
 	fshader_src[0] = RT_GLSL_VERSION "\n\n";
 	fshader_src[1] = "#define SCENE \\ \n";
 	fshader_src[3] = "\n";
-
 	pthread_create(&ts[0], 0, read_file_,
 		&(t_tot){rt->scene_buffer, RT_SCENE_SIZE, path, &fshader_src[2]});
 	pthread_create(&ts[0], 0, read_file_,
@@ -92,12 +91,5 @@ void		load_scene(t_rt *rt, const char *path)
 	glGetShaderiv(rt->gldata.fs0_id, GL_COMPILE_STATUS, (GLint[]){0});
 	glGetShaderiv(rt->gldata.fs0_id, GL_INFO_LOG_LENGTH, &loglen);
 	if (loglen > 0)
-	{
-		// TODO: make this an outer function
-		static char str[10000];
-		glGetShaderInfoLog(rt->gldata.fs0_id, 10000, &loglen, str);
-		// TODO: dont use printf
-		printf("%s\n", str);
 		panic("scene was corrupt");
-	}
 }

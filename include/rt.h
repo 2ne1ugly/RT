@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/15 15:14:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/10 16:01:45 by arherrer         ###   ########.fr       */
+/*   Updated: 2019/07/10 16:38:19 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,4 +226,7 @@ void			parse_png(t_png *png);
 void			init_png(t_png *png, const char *path);
 
 void 			load_textures(t_rt *rt);
+
+void			dispatch_key_press1(t_uniforms *u, int key);
+void			dispatch_key_press2(t_uniforms *u, int key);
 #endif
