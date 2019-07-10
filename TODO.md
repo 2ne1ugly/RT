@@ -58,6 +58,16 @@
 [ ] Mobius Strip (1pt)
 [-] Global Illumination / Caustics (1pt)
 
+easy:
+- video about project
+- automatic switching scenes
+- loading bar
+- multi-thread
+- loading skybox with library
+- parallel light
+- checkerboard pattern
+
+
 30 / 61 points
 mchi:
 	- motion blur
