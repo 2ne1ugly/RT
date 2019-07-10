@@ -8,7 +8,7 @@
 [-] unique cuts for all objects (1pt)
 [-] arbitary cuts (1pt)
 [-] sin noise on normal (1pt)
-[ ] checkerboard pattern on color (1pt)
+[-] checkerboard pattern on color (1pt)
 [-] algorithm to change object's color (sandbox) (1pt)
 [-] Perlin noise pattern on color (1pt)
 [-] Direct light (1pt)
@@ -60,23 +60,15 @@
 
 easy:
 - video about project
-- loading bar
-- multi-thread
-- loading skybox with library
-- checkerboard pattern
 
 
-38 / 61 points
+39 / 61 points
 mchi:
 	- motion blur
-	- ambient light
 
 arherrer:
-	- multi-thread
 
 zfaria:
-	- loading bar
-
 
 jcarpio-:
 	- scenes

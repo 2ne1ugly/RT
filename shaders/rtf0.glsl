@@ -85,6 +85,12 @@ Material normaled(Material m)
 	return m;
 }
 
+Material checkered(Material m)
+{
+	m.flag |= 8;
+	return m;
+}
+
 Material sin_noise = sin_noise_();
 
 Material sandbox_()
@@ -603,6 +609,7 @@ float ambient_occlusion(vec3 p, vec3 n);
 float soft_shadows(vec3 ro, vec3 rd, float light_dist);
 vec3 get_normal(vec3 p, vec3 oo, Material m);
 vec3 get_texture(vec3 p, vec3 oo);
+vec3 get_checkered(vec3 color, vec3 p, vec3 oo);
 float dot2(vec3 v) {return dot(v,v);}
 
 float sdf_light(vec3 p);  // 0
@@ -695,6 +702,8 @@ vec4 render()
 	vec3 diffuseColor = m.kd;
 	if ((m.flag & 2) == 2)
 		diffuseColor = get_texture(p, object_origin);
+	if ((m.flag & 8) == 8)
+		diffuseColor = get_checkered(diffuseColor, p, object_origin);
 	diffuseColor *= (1.0 - m.metallic);
 	vec3 specularColor = m.ks;
 
@@ -808,6 +817,8 @@ vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m, vec3 oo)
 	vec3 diffuseColor = m.kd;
 	if ((m.flag & 2) == 2)
 		diffuseColor = get_texture(p, oo);
+	if ((m.flag & 8) == 8)
+		diffuseColor = get_checkered(diffuseColor, p, oo);
 	diffuseColor *= (1.0 - m.metallic);
 	vec3 specularColor = m.ks;
 	// Go through local lights
@@ -912,6 +923,21 @@ vec3 get_texture(vec3 p, vec3 oo) {
 	uv.x = atan(oop.z, oop.x) / (2 * PI) + 0.5;
 	uv.y = asin(oop.y) / PI + 0.5;
 	return texture(albedoMap, uv).rgb;
+}
+
+vec3 get_checkered(vec3 color, vec3 p, vec3 oo)
+{
+	vec3 oop = p - oo;
+	vec2 uv;
+	uv.x = atan(oop.z, oop.x) / (2 * PI) + 0.5;
+	uv.y = asin(oop.y) / PI + 0.5;
+	uv *= 4;
+	int result = 0;
+	if (fract(uv.x) < 0.5)
+		result += 1;
+	if (fract(uv.y) < 0.5)
+		result += 1;
+	return vec3(result % 2) * color;
 }
 
 Material scene_m(vec3 p)
