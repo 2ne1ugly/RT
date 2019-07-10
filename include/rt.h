@@ -6,7 +6,7 @@
 /*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/15 15:14:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/09 18:08:15 by zfaria           ###   ########.fr       */
+/*   Updated: 2019/07/09 18:15:40 by zfaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,7 @@ typedef struct	s_uniforms
 	bool		entered;
 	GLuint		skybox;
 	GLuint		noise;
+	int			save_screenshot;
 }				t_uniforms;
 
 typedef struct	s_image
