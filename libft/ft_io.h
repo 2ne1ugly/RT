@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/11 14:05:14 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/10 01:50:36 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/10 16:43:58 by arherrer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,5 +23,5 @@
 
 size_t	ft_putstr(const char *str);
 size_t	ft_fdputstr(const char *str, int fd);
-void    *ft_memcpy(void *dst, const void *src, size_t n);
+void	*ft_memcpy(void *dst, const void *src, size_t n);
 #endif
