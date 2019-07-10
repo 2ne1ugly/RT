@@ -24,7 +24,7 @@
 [ ] Texture Stretch (1pt)
 [ ] Texture Shift (1pt)
 [-] Using a library to load Textures (1pt)
-[ ] Normal Mapping (1pt)
+[-] Normal Mapping (1pt)
 [ ] Texture affects transparency (1pt)
 [ ] Texture defined cut (1pt)
 [ ] Texture on transparent object effectively projects (2pt)
@@ -66,7 +66,7 @@ easy:
 - checkerboard pattern
 
 
-35 / 61 points
+36 / 61 points
 mchi:
 	- motion blur
 	- ambient light
