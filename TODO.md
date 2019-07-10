@@ -12,7 +12,7 @@
 [-] algorithm to change object's color (sandbox) (1pt)
 [-] Perlin noise pattern on color (1pt)
 [-] Direct light (1pt)
-[ ] Parallel light (1pt)
+[-] Parallel light (1pt)
 [-] Mirror reflection (1pt)
 [-] Reflection Rate (1 pt)
 [ ] Transparency (1pt)
@@ -64,11 +64,10 @@ easy:
 - loading bar
 - multi-thread
 - loading skybox with library
-- parallel light
 - checkerboard pattern
 
 
-30 / 61 points
+31 / 61 points
 mchi:
 	- motion blur
 	- ambient light
