@@ -30,6 +30,7 @@ struct Material {
 	vec3 ks;
 	float roughness;
 	float metallic;
+	int flag;
 };
 
 struct Shape {
@@ -44,16 +45,16 @@ struct Shape {
 };
 
 // Base materials
-vec3 ambient_light = vec3(.5);
-const Material black = Material(vec3(0.),vec3(0.),1.,0.);
-const Material red = Material(vec3(1.,0.,0.),vec3(0.05),0.,0.);
-const Material yellow = Material(vec3(1.,1.,0.),vec3(0.),1.,0.);
-const Material green = Material(vec3(0.,1.,0.),vec3(0.),1.,0.);
-const Material cyan = Material(vec3(0.,1.,1.),vec3(0.),1.,0.);
-const Material blue = Material(vec3(0.,0.,1.),vec3(0.1),0.,0.);
-const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0.);
-const Material grey = Material(vec3(.5),vec3(0.5),0.,.5);
-const Material white = Material(vec3(1.),vec3(0.5),1.0,0.0);
+vec3 ambient_light = vec3(1);
+const Material black = Material(vec3(0.),vec3(0.),1.,0., 0);
+const Material red = Material(vec3(1.,0.,0.),vec3(0.05),0.,0., 0);
+const Material yellow = Material(vec3(1.,1.,0.),vec3(0.),1.,0., 0);
+const Material green = Material(vec3(0.,1.,0.),vec3(0.),1.,0., 0);
+const Material cyan = Material(vec3(0.,1.,1.),vec3(0.),1.,0., 0);
+const Material blue = Material(vec3(0.,0.,1.),vec3(0.1),0.,0., 0);
+const Material magenta = Material(vec3(1.,0.,1.),vec3(0.),1.,0., 0);
+const Material grey = Material(vec3(.5),vec3(0.5),0.,.5, 0);
+const Material white = Material(vec3(1.),vec3(0.5),1.0,0.0, 0);
 
 Material sin_noise_()
 {
@@ -61,8 +62,16 @@ Material sin_noise_()
 	vec3(sin(gl_FragCoord.x),sin(gl_FragCoord.y),5.),
 	vec3(0.),
 	1.,
-	0.);
+	0.,
+	0);
 }
+
+Material sinNormal(Material m)
+{
+	m.flag = 1;
+	return m;
+}
+
 Material sin_noise = sin_noise_();
 
 Material sandbox_()
@@ -77,7 +86,7 @@ Material sandbox_()
 	color *= sin(time_ / 10.0) * 0.5;
 
 	vec3 kd = vec3(vec3(color,color * 0.5, sin(color + time_ / 3.0) * 0.75));
-	return Material(kd, vec3(0.), 1., 0.);
+	return Material(kd, vec3(0.), 1., 0., 0);
 }
 Material sandbox = sandbox_();
 
@@ -98,7 +107,7 @@ Material perlin_noise_()
 
 #undef h
 #undef N
-	return Material(f.xyz * .5,vec3(0.),1.,0.);
+	return Material(f.xyz * .5,vec3(0.),1.,0., 0);
 }
 Material perlin_noise = perlin_noise_();
 
@@ -106,6 +115,7 @@ Material perlin_noise = perlin_noise_();
 
 // Constructors
 void Light(Material m, vec3 p);
+void DirectLight(Material m, vec3 p);
 Shape Null(void);  // 0
 Shape Sphere(Material m, vec3 p, float s);  // 1
 Shape Box(Material m, vec3 p, vec3 b);  // 2
@@ -195,23 +205,34 @@ void main()
 **********************************************************************/
 
 // Lights
-const int MAX_LIGHTS = 256;
+const int MAX_LIGHTS = 64;
 struct Light_ {
 	Material m;
 	vec3 p;
-} lights[MAX_LIGHTS];
-int light_count;
+};
+
+Light_ lights[MAX_LIGHTS];
+int light_count = 0;
+Light_ direct_lights[MAX_LIGHTS];
+int direct_light_count = 0;
 
 void Light(Material m, vec3 p)
 {
 	Light_ light = Light_(m, p);
-	for (int i = 0; i < MAX_LIGHTS; ++i) {
-		if (i == light_count) {
-			lights[i] = light;
-			break ;
-		}
+	if (light_count < MAX_LIGHTS) {
+		lights[light_count] = light;
+		++light_count;
 	}
-	++light_count;
+}
+
+void DirectLight(Material m, vec3 p)
+{
+	Light_ light = Light_(m, p);
+	//light.p = normalize(light.p);
+	if (direct_light_count < MAX_LIGHTS) {
+		direct_lights[direct_light_count] = light;
+		++direct_light_count;
+	}
 }
 
 // Shapes
@@ -384,6 +405,7 @@ Shape Mandelbulb(Material m, vec3 p)
 
 // Scene data
 vec3 scene_p_;
+vec3 scene_o_;
 float scene_sd_;
 Material scene_m_;
 float sdf_shape(Shape shape);
@@ -401,6 +423,7 @@ Shape Union(Shape a, Shape b)
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
+		scene_o_ = shape.p;
 	}
 	shape.t = -1;
 	return shape;
@@ -419,6 +442,7 @@ Shape Subtraction(Shape a, Shape b)
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
+		scene_o_ = shape.p;
 	}
 	shape.t = -1;
 	return shape;
@@ -437,6 +461,7 @@ Shape Intersection(Shape a, Shape b)
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
+		scene_o_ = shape.p;
 	}
 	shape.t = -1;
 	return shape;
@@ -457,6 +482,7 @@ Shape SmoothUnion(Shape a, Shape b, float k)
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
+		scene_o_ = shape.p;
 	}
 	shape.t = -1;
 	return shape;
@@ -476,6 +502,7 @@ Shape SmoothSubtraction(Shape a, Shape b, float k)
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
+		scene_o_ = shape.p;
 	}
 	shape.t = -1;
 	return shape;
@@ -495,6 +522,7 @@ Shape SmoothIntersection(Shape a, Shape b, float k)
 	if (shape.sd < scene_sd_) {
 		scene_sd_ = shape.sd;
 		scene_m_ = shape.m;
+		scene_o_ = shape.p;
 	}
 	shape.t = -1;
 	return shape;
@@ -533,9 +561,10 @@ float intersect(vec3 ro, vec3 rd, float max_dist);
 vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m);
 float scene_sdf(vec3 p);
 Material scene_m(vec3 p);
+vec3 scene_o(vec3 p);
 float ambient_occlusion(vec3 p, vec3 n);
 float soft_shadows(vec3 ro, vec3 rd, float light_dist);
-vec3 get_normal(vec3 p);
+vec3 get_normal(vec3 p, vec3 oo, Material m);
 
 float dot2(vec3 v) {return dot(v,v);}
 
@@ -613,11 +642,12 @@ vec4 render()
 	}
 	vec3 p = ro + (rd * d);
 	Material m = scene_m(p);
+	vec3 object_origin = scene_o(p);
 	vec3 kd = m.kd;  // TODO: fix to use pbr
 	vec3 ks = m.ks;
 	//common values
 	vec3 v = -rd;
-	vec3 n = get_normal(p);
+	vec3 n = get_normal(p, object_origin, m);
 	vec3 r = normalize(-reflect(v,n));
 	float roughness = clamp(m.roughness, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
 	vec3 diffuseColor = kd * (1.0 - m.metallic);
@@ -629,7 +659,7 @@ vec4 render()
 	//monte carlo integration for global illumination. only skybox for now.
 	//replace texture(skybox, l).rgb to actual color calculation.
 	//possibly replace randomness to hammersley
-	//	specular term
+	// specular term
 	{
 		const int nSample = 4;
 		vec3 sampled = vec3(0);
@@ -646,7 +676,8 @@ vec4 render()
 			} else {
 				Material lm = scene_m(vec3(0));
 				vec3 lp = p + (l * gd);
-				vec3 ln = get_normal(lp);
+				vec3 oo = scene_o(lp);
+				vec3 ln = get_normal(lp, oo, lm);
 				//lp += ln * EPSILON;
 				vec3 lv = -l;
 				k = get_shading(lv, ln, lp, lm);
@@ -656,7 +687,7 @@ vec4 render()
 		spec += sampled / nSample;
 	}
 
-	//diffuse term
+	// diffuse term
 	{
 		const uint nSample = 4;
 		vec3 sampled = vec3(0);
@@ -676,8 +707,9 @@ vec4 render()
 				k = texture(skybox, l).rgb * ambient_light;
 			} else {
 				Material lm = scene_m(vec3(0));
-				vec3 ln = get_normal(vec3(0));
 				vec3 lp = p + (l * gd);
+				vec3 oo = scene_o(lp);
+				vec3 ln = get_normal(lp, oo, lm);
 				//lp += ln * EPSILON;
 				vec3 lv = -l;
 				//k = lm.kd;
@@ -755,6 +787,26 @@ vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m)
 		vec3 brdf = brdfDiff + brdfSpec;
 		spec += brdf * light.m.kd * shadow * ao * saturate(dotln);
 	}
+
+	for (int i = 0; i < MAX_LIGHTS; ++i) {
+		if (i == direct_light_count) {
+			break ;
+		}
+		Light_ light = direct_lights[i];
+		vec3 l = normalize(-light.p);
+		float shadow = soft_shadows(p, l, MAX_DISTANCE);
+		float ao = ambient_occlusion(p, n);
+		float dotln = dot(l, n);
+		float dotrl = dot(r, l);
+		vec3 h = normalize(v + l);
+		float dotvl = dot(l, v);
+		float dotnh = dot(n, h);
+		float dotvh = dot(v, h);
+		vec3 brdfSpec = D_Beckmann(roughness, dotnh) * V_SmithGGXCorrelated(roughness, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
+		vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, roughness, dotnv, dotln, dotvh);
+		vec3 brdf = brdfDiff + brdfSpec;
+		spec += brdf * light.m.kd * shadow * ao * saturate(dotln);
+	}
 	return spec;
 }
 
@@ -771,18 +823,31 @@ float scene_sdf(vec3 p)
 	return scene_sd_;
 }
 
-vec3 get_normal(vec3 p) {
+vec3 get_normal(vec3 p, vec3 oo, Material m) {
 	vec2 e = vec2(1.0, -1.0) * EPSILON;
-	return normalize(
+	vec3 normal = normalize(
 		e.xyy * scene_sdf(p + e.xyy) +
 		e.yyx * scene_sdf(p + e.yyx) +
 		e.yxy * scene_sdf(p + e.yxy) +
 		e.xxx * scene_sdf(p + e.xxx));
+	if ((m.flag & 1) == 1)
+	{
+		vec3 oop = normalize(p - oo);
+		vec3 axis = cross(oop, vec3(0, 0, 1));
+		normal += axis * sin(oop.x * 10);
+		normal = normalize(normal);
+	}
+	return normal;
 }
 
 Material scene_m(vec3 p)
 {
 	return scene_m_;
+}
+
+vec3 scene_o(vec3 p)
+{
+	return scene_o_;
 }
 
 float ambient_occlusion(vec3 p, vec3 n)
@@ -805,7 +870,7 @@ float soft_shadows(vec3 ro, vec3 rd, float light_dist)
 {
     float res = 1.0;
     float ph = MAX_DISTANCE;
-	float t = EPSILON * 100;
+	float t = EPSILON * 50;
 	while(t < light_dist)
     {	
         float h = scene_sdf(ro + rd * t);

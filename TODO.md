@@ -7,11 +7,11 @@
 [-] rotation and translation after cuts (1pt)
 [-] unique cuts for all objects (1pt)
 [-] arbitary cuts (1pt)
-[ ] sin noise on normal (1pt)
+[-] sin noise on normal (1pt)
 [ ] checkerboard pattern on color (1pt)
 [-] algorithm to change object's color (sandbox) (1pt)
 [-] Perlin noise pattern on color (1pt)
-[ ] Direct light (1pt)
+[-] Direct light (1pt)
 [ ] Parallel light (1pt)
 [-] Mirror reflection (1pt)
 [-] Reflection Rate (1 pt)
@@ -58,7 +58,7 @@
 [ ] Mobius Strip (1pt)
 [-] Global Illumination / Caustics (1pt)
 
-27 / 61 points
+29 / 61 points
 mchi:
 	- motion blur
 	- area lights

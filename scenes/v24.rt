@@ -1,0 +1,4 @@
+Union (
+	Sphere(sinNormal(red), vec3(0.), 1.)
+	,Sphere(red, vec3(1), 1.));
+Light(white, vec3(4.2,5.,4.2));
