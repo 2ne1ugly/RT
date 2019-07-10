@@ -1,0 +1,4 @@
+Subtraction(
+	Sphere(yellow, vec3(0.),.65)
+	,Box(yellow, vec3(0.), vec3(.5)));
+Light(white, vec3(4.2,0.,4.2));
