@@ -1,57 +1,64 @@
-[*] scene file
-[*] scene file follows a structure
-[ ] use of ambient light
-[ ] ambient light configurable in scene file
-[ ] unique cuts for all objects
-[ ] cut object by position
-[ ] cut objects through x,y,z
-[*] rotation and translation
-[*] sin noise
-[ ] checkerboard pattern
-[*] algorithm to change object's color (sandbox)
-[*] Perlin noise
-[*] Direct light
-[ ] Parallel light (ambient light)
-[ ] Change of refractive %
-[*] Reflection works
-[ ] Transparency works
-[ ] Change of refractive index
-[ ] Change of transparency %
-[ ] Shadows through transparency
-[ ] Textures affect transparency
-[ ] Texture defined by limit of object
-[ ] Transparency Modification
-[ ] Normal Mapping
-[*] Composed Objects (one cube made out of quads)
-[*] Negative Objects
-[*] Simple native objects
-[ ] Stereo Display (red/blue)
-[*] Sepia
-[ ] Motion Blur
-[*] Cartoon Effect
-[*] Antialising
+[*] scene file (1pt)
+[*] scene file follows a structure (1pt)
+[ ] use of ambient light (1pt)
+[ ] ambient light configurable in config file (1pt)
+[ ] cut objects through x,y,z (1pt)
+[ ] cut object by position (1pt)
+[*] rotation and translation after cuts (1pt)
+[ ] unique cuts for all objects (1pt)
+[ ] arbitary cuts (1pt)
+[ ] sin noise on normal (1pt)
+[ ] checkerboard pattern on color (1pt)
+[*] algorithm to change object's color (sandbox) (1pt)
+[*] Perlin noise pattern on color (1pt)
+[ ] Direct light (1pt)
+[ ] Parallel light (1pt)
+[*] Mirror reflection (1pt)
+[*] Reflection Rate (1 pt)
+[ ] Transparency (1pt)
+[ ] use of refractive index (1pt)
+[ ] Change of transparency % (1pt)
+[ ] Shadows through transparency (1pt)
+[ ] Application of textures on at least 1 object (1pt)
+[ ] Application of textures on 4 objects (1pt)
+[ ] Texture Stretch (1pt)
+[ ] Texture Shift (1pt)
+[ ] Using a library to load Textures (1pt)
+[ ] Normal Mapping (1pt)
+[ ] Texture affects transparency (1pt)
+[ ] Texture defined cut (1pt)
+[ ] Texture on transparent object effectively projects (2pt)
+[*] Composed Objects (one cube made out of quads) (1pt)
+[*] Negative Objects (1pt)
+[*] Simple native objects (1pt)
+[*] Antialising (1pt)
+[*] Cartoon Effect (1pt)
+[ ] Motion Blur (1pt)
+[*] Sepia (1pt)
+[ ] Stereo Display (red/blue) (1pt)
 [ ] Cluster computing (2pt)
-[ ] Multi-thread
-[*] It is fast
-[ ] Saving as an image
-[ ] Automatic object creation
-[ ] Sequence of scenes
-[*] Live Modification (eye, colors)
-[ ] GUI (GTK)
-[ ] Loading Bar
-[*] Fractal
-[ ] Custom Distance Functions
-[ ] Tower
-[ ] Table Cloth
-[ ] Twisted Cube
-[ ] Lights that are not dots (Area lights)
-[ ] OculusRift 3D mode
-[ ] Model Loading
-[ ] Video Sequence
-[ ] Mobius Strip
-[*] Global Illumination / Caustics
-[ ] post-processing flags (uniforms)
-
+[ ] Multi-thread (1pt)
+[*] It is fast (1pt)
+[ ] Saving as an image (1pt)
+[ ] Graphical waiting msg or Loading Bar (1pt)
+[ ] GUI (GTK) (1pt)
+[*] Live Modification (eye, colors) (1pt)
+[ ] Automatic Switching Scenes (1pt)
+[ ] Automatic object creation (1pt)
+[*] Teamwork (1pt)
+[ ] Cube Troue (1pt)
+[ ] Table Cloth (1pt)
+[ ] Tower (1pt)
+[ ] Custom Distance Functions (1pt)
+[*] Many different objects (1pt)
+[ ] Video about this project RT (1pt)
+[ ] Model Loading (1pt)
+[ ] OculusRift 3D mode (1 pt)
+[ ] Lights that are not dots (Area lights) (1pt)
+[ ] Mobius Strip (1pt)
+[*] Global Illumination / Caustics (1pt)
+[ ] post-processing flags (uniforms) (1pt)
+18 / 62 points
 mchi:
 	- motion blur
 	- area lights

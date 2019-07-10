@@ -588,11 +588,11 @@ vec4 render()
 		// TODO: implement a good background
 		//return vec4(0.);
 		//return vec4(sin(time.x) / 4., cos(time.x) / 4., atan(time.x) / 4., 1.);
-		return texture(skybox, rd);
+		return vec4(texture(skybox, rd).rgb * ambient_light, 1.0);
 	}
 	vec3 p = ro + (rd * d);
 	Material m = scene_m(p);
-	vec3 kd = m.kd * ambient_light;  // TODO: fix to use pbr
+	vec3 kd = m.kd;  // TODO: fix to use pbr
 	vec3 ks = m.ks;
 	//common values
 	vec3 v = -rd;
@@ -621,11 +621,11 @@ vec4 render()
 			vec3 k;
 			float gd = intersect(p, l, MAX_DISTANCE);
 			if (gd >= MAX_DISTANCE) {
-				k = texture(skybox, l).rgb;
+				k = texture(skybox, l).rgb * ambient_light;
 			} else {
 				Material lm = scene_m(vec3(0));
-				vec3 ln = get_normal(vec3(0));
 				vec3 lp = p + (l * gd);
+				vec3 ln = get_normal(lp);
 				//lp += ln * EPSILON;
 				vec3 lv = -l;
 				k = get_shading(lv, ln, lp, lm);
@@ -652,7 +652,7 @@ vec4 render()
 			float gd = intersect(p, l, MAX_DISTANCE);
 			k = texture(skybox, l).rgb;
 			if (gd >= MAX_DISTANCE) {
-				k = texture(skybox, l).rgb;
+				k = texture(skybox, l).rgb * ambient_light;
 			} else {
 				Material lm = scene_m(vec3(0));
 				vec3 ln = get_normal(vec3(0));
