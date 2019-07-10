@@ -1,7 +1,7 @@
 [-] scene file (1pt)
 [-] scene file follows a structure (1pt)
-[ ] use of ambient light (1pt)
-[ ] ambient light configurable in config file (1pt)
+[-] use of ambient light (1pt)
+[-] ambient light configurable in config file (1pt)
 [-] cut objects through x,y,z (1pt)
 [-] cut object by position (1pt)
 [-] rotation and translation after cuts (1pt)
@@ -57,7 +57,7 @@
 [ ] Lights that are not dots (Area lights) (1pt)
 [ ] Mobius Strip (1pt)
 [-] Global Illumination / Caustics (1pt)
-[ ] post-processing flags (uniforms) (1pt)
+
 21 / 62 points
 mchi:
 	- motion blur
