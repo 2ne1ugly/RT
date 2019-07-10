@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: arherrer <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/15 15:13:50 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/09 23:02:29 by arherrer         ###   ########.fr       */
+/*   Updated: 2019/07/10 01:06:58 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,11 @@
 void call_loop(const char *scene)
 {
 	static const char	*ex = "./RT ";
-	char *const str = malloc(strlen(ex) + strlen(scene) + 1);
+	char *const str = malloc(ft_strlen(ex) + ft_strlen(scene) + 1);
 	if (str)
 	{
-		strcpy(str, ex);
-		strcat(str, scene);
+		ft_strcat(str, ex);
+		ft_strcat(str, scene);
 		system(str);
 	}
 	free(str);

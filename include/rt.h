@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rt.h                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/15 15:14:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/09 19:44:01 by zfaria           ###   ########.fr       */
+/*   Updated: 2019/07/10 02:02:34 by mchi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,21 @@ typedef struct	s_tga
 	int				color_mode;
 	unsigned char	color_swap;
 }				t_tga;
+
+typedef struct	s_png
+{
+	FILE			*fp;
+	unsigned int	width;
+	unsigned int	height;
+	int				color_type;
+	int				bit_depth;
+	png_structp		png_ptr;
+	png_infop		info_ptr;
+	int				row_bytes;
+	int				interlace_type;
+	unsigned char	*data;
+	png_bytepp	rows;
+}				t_png;
 
 typedef struct	s_object
 {
