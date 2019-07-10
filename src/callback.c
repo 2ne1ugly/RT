@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   callback.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:43:41 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/07 23:49:11 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/09 18:17:32 by zfaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,13 @@ static void	rt_char_cb_(GLFWwindow *window, t_uniforms *uniforms)
 
 static void	rt_char_cb(GLFWwindow *window, unsigned int codepoint)
 {
+	t_rt *rt;
+
 	(void)codepoint;
-	rt_char_cb_(window, &((t_rt*)glfwGetWindowUserPointer(window))->uniforms);
+	rt = (t_rt*)glfwGetWindowUserPointer(window);
+	rt_char_cb_(window, &rt->uniforms);
+	if ((glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS))
+		rt->uniforms.save_screenshot = 1;
 }
 
 static void	rt_cursor_pos_cb(GLFWwindow *window, double xpos, double ypos)

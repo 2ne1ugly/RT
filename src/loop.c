@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   loop.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: zfaria <zfaria@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:13:10 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/07 20:38:02 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/09 19:17:56 by zfaria           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,11 @@ void		loop(t_rt *rt)
 			render(rt);
 			post_render(rt);
 			glfwSwapBuffers(rt->gldata.window);
+			if (rt->uniforms.save_screenshot)
+			{
+				save_image(rt);
+				rt->uniforms.save_screenshot = 0;
+			}
 		}
 	}
 }
