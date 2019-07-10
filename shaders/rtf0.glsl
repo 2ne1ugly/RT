@@ -117,6 +117,7 @@ Material perlin_noise = perlin_noise_();
 void Light(Material m, vec3 p);
 void AreaLight(Material m, vec3 p);
 void DirectLight(Material m, vec3 p);
+void ParallelLight(Material m, vec3 p);
 Shape Null(void);  // 0
 Shape Sphere(Material m, vec3 p, float s);  // 1
 Shape Box(Material m, vec3 p, vec3 b);  // 2
@@ -216,6 +217,8 @@ Light_ lights[MAX_LIGHTS];
 int light_count = 0;
 Light_ direct_lights[MAX_LIGHTS];
 int direct_light_count = 0;
+Light_ para_lights[MAX_LIGHTS];
+int para_light_count = 0;
 
 void Light(Material m, vec3 p)
 {
@@ -244,6 +247,15 @@ void DirectLight(Material m, vec3 p)
 	if (direct_light_count < MAX_LIGHTS) {
 		direct_lights[direct_light_count] = light;
 		++direct_light_count;
+	}
+}
+
+void ParallelLight(Material m, vec3 p)
+{
+	Light_ light = Light_(m, p);
+	if (para_light_count < MAX_LIGHTS) {
+		para_lights[para_light_count] = light;
+		++para_light_count;
 	}
 }
 
@@ -778,15 +790,29 @@ vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m)
 	float roughness = clamp(m.roughness, MINIMUM_ROUGHNESS, MAXIMUM_ROUGHNESS);
 	vec3 spec = vec3(0.);
 	// Go through local lights
-	for (int i = 0; i < MAX_LIGHTS; ++i) {
-		if (i == light_count) {
-			break ;
-		}
+	for (int i = 0; i < light_count; ++i) {
 		Light_ light = lights[i];
 		vec3 pl = light.p - p;
 		float light_dist = length(pl);
 		vec3 l = pl / light_dist;
 		float shadow = soft_shadows(p, l, light_dist);
+		float ao = ambient_occlusion(p, n);
+		float dotln = saturate(dot(l, n));
+		float dotrl = dot(r, l);
+		vec3 h = normalize(v + l);
+		float dotvl = dot(l, v);
+		float dotnh = dot(n, h);
+		float dotvh = dot(v, h);
+		vec3 brdfSpec = D_Beckmann(roughness, dotnh) * V_SmithGGXCorrelated(roughness, dotnv, dotln) * F_Fresnel(specularColor, dotvh);
+		vec3 brdfDiff = Diffuse_OrenNayar(diffuseColor, roughness, dotnv, dotln, dotvh);
+		vec3 brdf = brdfDiff + brdfSpec;
+		spec += brdf * light.m.kd * shadow * ao * saturate(dotln);
+	}
+
+	for (int i = 0; i < direct_light_count; ++i) {
+		Light_ light = direct_lights[i];
+		vec3 l = normalize(-light.p);
+		float shadow = soft_shadows(p, l, MAX_DISTANCE);
 		float ao = ambient_occlusion(p, n);
 		float dotln = dot(l, n);
 		float dotrl = dot(r, l);
@@ -800,15 +826,14 @@ vec3 get_shading(vec3 v, vec3 n, vec3 p, Material m)
 		spec += brdf * light.m.kd * shadow * ao * saturate(dotln);
 	}
 
-	for (int i = 0; i < MAX_LIGHTS; ++i) {
-		if (i == direct_light_count) {
-			break ;
-		}
-		Light_ light = direct_lights[i];
+	for (int i = 0; i < para_light_count; ++i) {
+		Light_ light = para_lights[i];
 		vec3 l = normalize(-light.p);
+		float dotln = dot(l, n);
+		if (dotln < 0.995)
+			continue;
 		float shadow = soft_shadows(p, l, MAX_DISTANCE);
 		float ao = ambient_occlusion(p, n);
-		float dotln = dot(l, n);
 		float dotrl = dot(r, l);
 		vec3 h = normalize(v + l);
 		float dotvl = dot(l, v);
