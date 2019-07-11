@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/24 20:43:41 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/10 16:29:56 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/10 21:59:41 by arherrer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,16 @@ static void	rt_key_cb(GLFWwindow *window, int key, int scancode, int action)
 		dispatch_key_press1(&rt->uniforms, key);
 }
 
+static void	rt_err_cb(int err, const char *err_str)
+{
+	(void)err;
+	panic(err_str);
+}
+
 void		init_callbacks(t_rt *rt)
 {
 	glfwSetWindowUserPointer(rt->gldata.window, rt);
+	glfwSetErrorCallback(rt_err_cb);
 	glfwSetKeyCallback(rt->gldata.window,
 		(void (*)(struct GLFWwindow *, int, int, int, int))rt_key_cb);
 	glfwSetCursorPosCallback(rt->gldata.window, rt_cursor_pos_cb);

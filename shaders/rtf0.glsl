@@ -580,20 +580,20 @@ Shape Translate(vec3 p, Shape s)
 Shape CutX(Shape s)
 {
 	return Intersection(s,
-		Plane(black, s.p, vec4(0.,.5,0.,0.)));
+		Plane(s.m, s.p, vec4(0.,.5,0.,0.)));
 }
 Shape CutY(Shape s)
 {
 	return Intersection(s,
-		Plane(black, s.p, vec4(.5,0.,0.,0.)));
+		Plane(s.m, s.p, vec4(.5,0.,0.,0.)));
 }
 Shape CutZ(Shape s)
 {
-	return Intersection(Plane(black, s.p+vec3(0.,0.,1.), vec4(0.,0.,.5,.5)),s);
+	return Intersection(Plane(s.m, s.p+vec3(0.,0.,1.), vec4(0.,0.,.5,.5)),s);
 }
 Shape Cut(Shape s, vec4 p)
 {
-	return Intersection(s, Plane(black, s.p, p));
+	return Intersection(s, Plane(s.m, s.p, p));
 }
 
 /**********************************************************************

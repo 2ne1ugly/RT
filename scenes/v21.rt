@@ -1,4 +1,4 @@
-Union (
+Union(
 	CutY(Sphere(red, vec3(0.), 1.))
 	,Null());
 Light(white, vec3(4.2,5.,4.2));
