@@ -1,5 +1,5 @@
 //========================================================================
-// GLFW 3.4 Win32 - www.glfw.org
+// GLFW 3.3 Win32 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2019 Camilla Löwy <elmindreda@glfw.org>
@@ -23,8 +23,6 @@
 // 3. This notice may not be removed or altered from any source
 //    distribution.
 //
-//========================================================================
-// Please use C89 style variable declarations in this file because VS 2010
 //========================================================================
 
 #include "internal.h"
@@ -631,8 +629,12 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
             //       clicking a caption button
             if (HIWORD(lParam) == WM_LBUTTONDOWN)
             {
-                if (LOWORD(lParam) != HTCLIENT)
+                if (LOWORD(lParam) == HTCLOSE ||
+                    LOWORD(lParam) == HTMINBUTTON ||
+                    LOWORD(lParam) == HTMAXBUTTON)
+                {
                     window->win32.frameAction = GLFW_TRUE;
+                }
             }
 
             break;
@@ -828,6 +830,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
             const int x = GET_X_LPARAM(lParam);
             const int y = GET_Y_LPARAM(lParam);
 
+            // Disabled cursor motion input is provided by WM_INPUT
             if (window->cursorMode == GLFW_CURSOR_DISABLED)
             {
                 const int dx = x - window->win32.lastCursorPosX;
@@ -939,9 +942,6 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
         case WM_ENTERSIZEMOVE:
         case WM_ENTERMENULOOP:
         {
-            if (window->win32.frameAction)
-                break;
-
             // HACK: Enable the cursor while the user is moving or
             //       resizing the window or using the window menu
             if (window->cursorMode == GLFW_CURSOR_DISABLED)
@@ -953,9 +953,6 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
         case WM_EXITSIZEMOVE:
         case WM_EXITMENULOOP:
         {
-            if (window->win32.frameAction)
-                break;
-
             // HACK: Disable the cursor once the user is done moving or
             //       resizing the window or using the menu
             if (window->cursorMode == GLFW_CURSOR_DISABLED)
@@ -1725,7 +1722,7 @@ void _glfwPlatformSetWindowMonitor(_GLFWwindow* window,
 
     _glfwInputWindowMonitor(window, monitor);
 
-    if (window->monitor)
+    if (monitor)
     {
         MONITORINFO mi = { sizeof(mi) };
         UINT flags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_NOCOPYBITS;

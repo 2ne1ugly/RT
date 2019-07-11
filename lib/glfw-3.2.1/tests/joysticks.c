@@ -29,7 +29,6 @@
 //========================================================================
 
 #include <glad/gl.h>
-#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #define NK_IMPLEMENTATION
@@ -86,7 +85,7 @@ static void joystick_callback(int jid, int event)
         glfwRequestWindowAttention(window);
 }
 
-static void drop_callback(GLFWwindow* window, int count, const char* paths[])
+static void drop_callback(GLFWwindow* window, int count, const char** paths)
 {
     int i;
 
