@@ -4,4 +4,4 @@
 **/*.pc
 lib*
 shaders/tmp*
-RT
+RT*

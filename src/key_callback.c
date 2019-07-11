@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/07/10 16:30:07 by mchi              #+#    #+#             */
-/*   Updated: 2019/07/10 16:38:52 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/11 11:46:38 by arherrer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,25 +15,25 @@
 void		dispatch_key_press1(t_uniforms *u, int key)
 {
 	if (key == GLFW_KEY_W)
-		u->ray_origin.z -= 4.2 * u->delta_time;
+		u->ray_origin.z -= 8 * u->delta_time;
 	if (key == GLFW_KEY_S)
-		u->ray_origin.z += 4.2 * u->delta_time;
+		u->ray_origin.z += 8 * u->delta_time;
 	if (key == GLFW_KEY_A)
-		u->ray_origin.x -= 4.2 * u->delta_time;
+		u->ray_origin.x -= 8 * u->delta_time;
 	if (key == GLFW_KEY_D)
-		u->ray_origin.x += 4.2 * u->delta_time;
+		u->ray_origin.x += 8 * u->delta_time;
 	if (key == GLFW_KEY_J)
-		u->ray_origin.y += 4.2 * u->delta_time;
+		u->ray_origin.y += 8 * u->delta_time;
 	if (key == GLFW_KEY_K)
-		u->ray_origin.y -= 4.2 * u->delta_time;
+		u->ray_origin.y -= 8 * u->delta_time;
 	if (key == GLFW_KEY_Q)
-		u->rot.x -= 4.2 * u->delta_time;
+		u->rot.x -= 8 * u->delta_time;
 	if (key == GLFW_KEY_E)
-		u->rot.x += 4.2 * u->delta_time;
+		u->rot.x += 8 * u->delta_time;
 	if (key == GLFW_KEY_H)
-		u->rot.y -= 4.2 * u->delta_time;
+		u->rot.y -= 8 * u->delta_time;
 	if (key == GLFW_KEY_L)
-		u->rot.y += 4.2 * u->delta_time;
+		u->rot.y += 8 * u->delta_time;
 }
 
 void		dispatch_key_press2(t_uniforms *u, int key)
