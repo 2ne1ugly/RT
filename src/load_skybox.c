@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/01 16:23:15 by mchi              #+#    #+#             */
-/*   Updated: 2019/07/10 16:37:20 by mchi             ###   ########.fr       */
+/*   Updated: 2019/07/11 12:06:09 by arherrer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ void	parse_png(t_png *png)
 
 	png->row_bytes = png_get_rowbytes(png->png_ptr, png->info_ptr);
 	png->data = (unsigned char*)malloc(png->row_bytes * png->height);
+	if (!png->data)
+		panic("could not malloc data!");
 	png->rows = png_get_rows(png->png_ptr, png->info_ptr);
 	i = 0;
 	while (i < png->height)
