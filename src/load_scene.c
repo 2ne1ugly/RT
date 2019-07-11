@@ -6,7 +6,7 @@
 /*   By: mchi <mchi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/22 21:07:26 by arherrer          #+#    #+#             */
-/*   Updated: 2019/07/11 11:56:50 by arherrer         ###   ########.fr       */
+/*   Updated: 2019/07/11 12:01:42 by arherrer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ void		load_scene(t_rt *rt, const char *path)
 {
 	GLint				loglen;
 	const char *const	ptr = rt->buffer;
-	const char			*fshader_src[] = {
+	char *const			fshader_src[] = {
 		RT_GLSL_VERSION "\n\n",
 		"#define SCENE \\ \n",
 		read_file(rt->scene_buffer, RT_SCENE_SIZE, path),
