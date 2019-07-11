@@ -1,0 +1,11 @@
+SmoothUnion(
+SmoothUnion(
+	Sphere(red, vec3(0.,0.,0.),.5)
+	,Sphere(white, vec3(0.,1.,0.),.5)
+	,.5)
+,SmoothUnion(
+	Sphere(red, vec3(cos(time.x)/8.,2.,0.),.5)
+	,Sphere(white, vec3(sin(time.x)/8,3.,0.),.5)
+	,.5)
+	,.5);
+Light(white, vec3(4.2,0.,4.2));
