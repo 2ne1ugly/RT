@@ -58,9 +58,7 @@
 [ ] Mobius Strip (1pt)
 [-] Global Illumination / Caustics (1pt)
 
-easy:
-- video about project
-
+NOTE: mt does not play well with glfw
 
 39 / 61 points
 mchi:
