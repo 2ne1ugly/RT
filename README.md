@@ -1,21 +1,21 @@
 # RT
-Ray marching based ray tracer. Currently only OSX supported.
+Ray marching based ray tracer. Currently only OSX supported.  
 ## How to build
-for multithreaded build ```make -j <num threads>```.
-typically, ```make -j 4```.
+for multithreaded build ```make -j <num threads>```.  
+typically, ```make -j 4```.  
 ## Usage
-```./RT <scene>```
-example scenes are given in ./scenes directory
+```./RT <scene>```  
+example scenes are given in ./scenes directory  
 ## Keys
 #### Camera movements and rotations
-**w a s d q e j k h l** to move and rotate camera? 
-**space** to reset camera position
+**w a s d q e j k h l** to move and rotate camera?  
+**space** to reset camera position  
 #### Post processing toggling
-**1** for antialiasing
-**2** for carton-filter
-**3** for sepia
+**1** for antialiasing  
+**2** for carton-filter  
+**3** for sepia  
 #### Screenshot key
-**P** to take screenshot
+**P** to take screenshot  
 ## Screenshots
 #### Physically based rendering and global illumination...
 ![v0](screenshots/v4.png)
