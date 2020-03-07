@@ -93,3 +93,9 @@ example scenes are given in ./scenes directory
 - [x] Global Illumination / Caustics (1pt)
 ---
 39 / 61 points
+
+# Contributors
+[mchi - Min Gyu Chi]("https://github.com/2ne1ugly")
+[arherrer - Armando Herrera]("https://github.com/hexamage")
+[zfaria - Zachery Faria]("https://github.com/ZacheryFaria")
+[jcarpio- - Jose Mauricio Carpio Herrera]("https://github.com/laughtt")
