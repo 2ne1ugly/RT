@@ -95,8 +95,8 @@ example scenes are given in ./scenes directory
 39 / 61 points
 
 # Contributors
-[mchi - Min Gyu Chi](https://github.com/2ne1ugly)
-[arherrer - Armando Herrera](https://github.com/hexamage)
-[zfaria - Zachery Faria](https://github.com/ZacheryFaria)
-[jcarpio- - Jose Mauricio Carpio Herrera](https://github.com/laughtt)
+[mchi](https://github.com/2ne1ugly) - Min Gyu Chi
+[arherrer](https://github.com/hexamage) - Armando Herrera
+[zfaria](https://github.com/ZacheryFaria) - Zachery Faria
+[jcarpio-](https://github.com/laughtt) - Jose Mauricio Carpio Herrera
 
