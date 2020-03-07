@@ -96,7 +96,7 @@ example scenes are given in ./scenes directory
 
 # Contributors
 [mchi - Min Gyu Chi](https://github.com/2ne1ugly)  
-[arherrer - Armando Herrera](https://github.com/hexamage)  
+[arherrer - Armando Herrera](https://github.com/geostran)  
 [zfaria - Zachery Faria](https://github.com/ZacheryFaria)  
 [jcarpio- - Jose Mauricio Carpio Herrera](https://github.com/laughtt)  
 
